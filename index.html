@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheda Personaggio D&D - Valenor</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" id="character-sheet">
+        <header id="main-header-grid">
+            <div id="portrait-container">
+                </div>
+            <div id="header-info-container">
+                <div id="name-and-controls">
+                    <h1 id="character-name-display"></h1>
+                    <div id="controls-container">
+                        <span id="save-feedback"></span>
+                        <button id="edit-mode-btn" class="btn">Modifica Scheda</button>
+                    </div>
+                </div>
+                <div id="details-grid">
+                    </div>
+            </div>
+        </header>
+
+        <section id="abilities-horizontal-container">
+            </section>
+
+        <main id="main-content-grid">
+            <div id="column-left">
+                <div id="combat-stats-box">
+                    <div class="main-stats-grid">
+                        <div id="ac-box" class="box stat-box"></div>
+                        <div id="initiative-box" class="box stat-box"></div>
+                        <div id="speed-box" class="box stat-box"></div>
+                    </div>
+                    <div id="hp-box" class="box"></div>
+                    <div class="resources-grid">
+                        <div id="hit-dice-box" class="box"></div>
+                        <div id="death-saves-box" class="box"></div>
+                    </div>
+                </div>
+                <div id="attacks-box" class="box"></div>
+            </div>
+
+            <div id="column-center">
+                <div id="features-box" class="box"></div>
+                <div id="proficiencies-box" class="box"></div>
+            </div>
+
+            <div id="column-right">
+                <div id="equipment-box" class="box"></div>
+                <div id="spells-box" class="box"></div>
+                 <div id="personality-box" class="box"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
