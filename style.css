@@ -283,18 +283,20 @@ body {
   justify-content: center;
 }
 .hit-dice-icon {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: var(--c-danger);
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
+  text-shadow: 0 0 5px #000;
 }
 .hit-dice-icon:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 .hit-dice-icon.used {
-  opacity: 0.2;
+  opacity: 0.3;
   filter: grayscale(100%);
+  text-shadow: none;
 }
 .death-save {
   display: flex;
@@ -345,6 +347,7 @@ body {
   background-color: var(--c-surface-light);
   border: 1px solid var(--c-secondary);
   color: var(--c-secondary);
+  padding: 0.5rem;
 }
 .die-type-buttons button.active {
   background-color: var(--c-secondary);
