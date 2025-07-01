@@ -75,7 +75,7 @@ body {
 .btn-small {
   padding: 0.25rem 0.75rem;
   font-size: 1rem;
-  margin-left: 0.5rem;
+  margin: 0 0.25rem;
 }
 #details-grid {
   display: grid;
@@ -282,6 +282,20 @@ body {
   align-items: center;
   justify-content: center;
 }
+.hit-dice-icon {
+  font-size: 1.5rem;
+  color: var(--c-danger);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.hit-dice-icon:hover {
+  transform: scale(1.1);
+}
+.hit-dice-icon.used {
+  opacity: 0.2;
+  filter: grayscale(100%);
+}
 .death-save {
   display: flex;
   flex-direction: column;
@@ -295,6 +309,7 @@ body {
   opacity: 0.3;
   color: var(--c-label);
   transition: all 0.2s ease-in-out;
+  user-select: none;
 }
 .skull-icon:hover {
   transform: scale(1.1);
@@ -321,6 +336,10 @@ body {
   justify-content: space-between;
   gap: 0.5rem;
 }
+.die-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
 .die-type-buttons button {
   flex-grow: 1;
   background-color: var(--c-surface-light);
@@ -330,19 +349,6 @@ body {
 .die-type-buttons button.active {
   background-color: var(--c-secondary);
   color: white;
-}
-.hit-dice-icon {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--c-secondary);
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  border-top: none;
-  cursor: pointer;
-}
-.hit-dice-icon.used {
-  background: var(--c-secondary);
 }
 #attacks-container {
   display: flex;
@@ -444,6 +450,16 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 1rem;
+}
+.tracker-dot {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--c-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.tracker-dot.used {
+  background: var(--c-primary);
 }
 input[type="text"],
 input[type="number"],
