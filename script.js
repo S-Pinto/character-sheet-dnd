@@ -243,7 +243,8 @@ function renderCombatStats() {
                     <input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div>
                 </div>
                 <div class="hp-sub-box">
-                    <div class="stat-value">${characterData.hp.temp}</div>
+                    <div class="stat-value view-item">${characterData.hp.temp}</div>
+                    <input type="number" class="stat-value edit-item" data-path="hp.temp" value="${characterData.hp.temp}">
                     <div class="stat-label">HP Temporanei</div>
                     <div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div>
                 </div>
@@ -254,26 +255,28 @@ function renderCombatStats() {
   let hdEditHTML = `<div class="edit-item" style="display:flex; gap:1rem; align-items:center;">
         <input type="number" data-path="hitDice.total" value="${
           hd.total
-        }" style="flex-basis: 70px;">
+        }" style="flex-basis: 70px;" title="Dadi totali">
         <select data-path="hitDice.type" value="${hd.type}">
-            <option value="d6" ${hd.type === "d6" ? "selected" : ""}>d6</option>
-            <option value="d8" ${hd.type === "d8" ? "selected" : ""}>d8</option>
+            <option value="d6" ${
+              hd.type === "d6" ? "selected" : ""
+            }>d6</option><option value="d8" ${
+    hd.type === "d8" ? "selected" : ""
+  }>d8</option>
             <option value="d10" ${
               hd.type === "d10" ? "selected" : ""
-            }>d10</option>
-            <option value="d12" ${
-              hd.type === "d12" ? "selected" : ""
-            }>d12</option>
+            }>d10</option><option value="d12" ${
+    hd.type === "d12" ? "selected" : ""
+  }>d12</option>
         </select>
     </div>`;
   let hdHTML = `<h4>Dadi Vita</h4>
-        <div class="view-item" style="text-align:center; color: var(--c-label); margin-bottom: 0.5rem;">${hd.total}${hd.type}</div>
+        <div class="view-item" style="text-align:center; color: var(--c-label); margin-bottom: 0.5rem;">Lancia 1${hd.type}</div>
         ${hdEditHTML}
         <div class="tracker-grid">`;
   for (let i = 0; i < hd.total; i++)
-    hdHTML += `<div class="tracker-dot ${
+    hdHTML += `<span class="potion-icon ${
       i < hd.used ? "used" : ""
-    }" data-type="hd" data-index="${i}"></div>`;
+    }" data-type="hd" data-index="${i}">🧪</span>`;
   document.getElementById("hit-dice-box").innerHTML = hdHTML + `</div>`;
 
   let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
@@ -419,22 +422,19 @@ function handleInteraction(e) {
     list.splice(index, 1);
     renderSheet();
   }
-  if (target.matches(".tracker-dot")) {
-    const type = target.dataset.type;
+  if (target.matches(".potion-icon")) {
+    // Modificato da .tracker-dot
     const index = parseInt(target.dataset.index, 10);
-    if (type === "hd") {
-      characterData.hitDice.used =
-        characterData.hitDice.used === index + 1 ? index : index + 1;
-      renderCombatStats();
-    }
-    if (type === "spell") {
-      const level = target.dataset.level;
-      characterData.spells.slots[level].used =
-        characterData.spells.slots[level].used === index + 1
-          ? index
-          : index + 1;
-      renderSpells();
-    }
+    characterData.hitDice.used =
+      characterData.hitDice.used === index + 1 ? index : index + 1;
+    renderCombatStats();
+  }
+  if (target.matches('.tracker-dot[data-type="spell"]')) {
+    const level = target.dataset.level;
+    const index = parseInt(target.dataset.index, 10);
+    characterData.spells.slots[level].used =
+      characterData.spells.slots[level].used === index + 1 ? index : index + 1;
+    renderSpells();
   }
   if (target.matches('[data-hp-type="temp"]')) {
     const amount = parseInt(target.dataset.amount, 10);
@@ -442,11 +442,11 @@ function handleInteraction(e) {
     renderCombatStats();
   }
   if (target.matches(".skull-icon")) {
-    // NUOVA LOGICA PER I TESCHI
     const type = target.dataset.dsType;
     const index = parseInt(target.dataset.index, 10);
-    characterData.deathSaves[type + "es"] =
-      characterData.deathSaves[type + "es"] === index + 1 ? index : index + 1;
+    const key = type + "es";
+    characterData.deathSaves[key] =
+      characterData.deathSaves[key] === index + 1 ? index : index + 1;
     renderCombatStats();
   }
   if (target.id === "heal-btn" || target.id === "damage-btn") {
