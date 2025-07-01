@@ -1,53 +1,191 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+  let characterData = {
+    name: "Valenor Lightbringer",
+    class: "Paladino 5 / Warlock 1",
+    level: 6,
+    background: "Soldato",
+    race: "Aasimar",
+    alignment: "Neutrale Buono",
+    ac: 18,
+    speed: "30ft",
+    hp: { max: 60, current: 60, temp: 0 },
+    hitDice: {
+      total: 5,
+      type: "d10",
+      diceStates: [false, false, false, false, false],
+    },
+    deathSaves: { successes: 0, failures: 0 },
+    proficiencyBonus: 3,
+    abilities: { str: 17, dex: 10, con: 14, int: 8, wis: 12, cha: 15 },
+    savingThrows: {
+      str: true,
+      dex: false,
+      con: true,
+      int: false,
+      wis: true,
+      cha: true,
+    },
+    skills: {
+      athletics: { proficient: true },
+      acrobatics: { proficient: false },
+      sleightOfHand: { proficient: false },
+      stealth: { proficient: false },
+      arcana: { proficient: false },
+      history: { proficient: false },
+      investigation: { proficient: false },
+      nature: { proficient: false },
+      religion: { proficient: false },
+      animalHandling: { proficient: false },
+      insight: { proficient: true },
+      medicine: { proficient: false },
+      perception: { proficient: false },
+      survival: { proficient: false },
+      deception: { proficient: false },
+      intimidation: { proficient: true },
+      performance: { proficient: false },
+      persuasion: { proficient: true },
+    },
+    proficiencies: {
+      armor: "Armature Leggere, Medie, Pesanti, Scudi",
+      weapons: "Armi Semplici, Armi da Guerra",
+      tools: "Set da Gioco (dadi)",
+      languages: "Comune, Celestiale, Orchesco",
+    },
+    attacks: [
+      {
+        name: "Egen-Vath",
+        bonus: "+7",
+        damage: "2d6s + 1d4f + 4",
+        notes:
+          "Se l'attacco manca, l'avversario subisce comunque 3 danni da fuoco.",
+      },
+      {
+        name: "Spada Lunga (+1)",
+        bonus: "+7",
+        damage: "1d8+6 Tagliente",
+        notes: "Stile Duellare (+2 danni) attivo.",
+      },
+      {
+        name: "Eldritch Blast",
+        bonus: "+5",
+        damage: "2d10 Forza",
+        notes: "Gittata 18m, due raggi.",
+      },
+    ],
+    equipment: [
+      { name: "Zaino del Sacerdote", quantity: 1 },
+      { name: "Simbolo Sacro di Torm", quantity: 1 },
+      { name: "Kit da Guaritore", quantity: 10 },
+    ],
+    coins: { cp: 0, sp: 0, ep: 0, gp: 15, pp: 0 },
+    personality: {
+      appearance:
+        "Aasimar alto e imponente, con capelli bianco-argento e occhi penetranti. Indossa un'armatura ornata bianca e oro.",
+      backstory:
+        "Ex-caporale degli Evenswords, ha stretto un patto con un'entità celestiale dopo aver perso la memoria e le sue certezze, guidato da visioni di un drago argentato.",
+    },
+    features: [
+      {
+        name: "Attaccante Selvaggio",
+        description:
+          "Una volta per turno, quando colpisci con un'arma, puoi ritirare i dadi di danno e usare il risultato migliore.",
+      },
+      {
+        name: "Duellare",
+        description:
+          "Quando impugni un'arma da mischia in una mano e nessun'altra arma, ottieni un bonus di +2 ai tiri per i danni con quell'arma.",
+      },
+      {
+        name: "Percezione Divina",
+        description:
+          "Come azione bonus, percepisci Celestiali, Immondi e Non-morti entro 18m.",
+      },
+      {
+        name: "Imposizione delle Mani",
+        description:
+          "Hai una riserva di 25 Punti Vita (5 x liv. Paladino) per curare.",
+      },
+      {
+        name: "Resistenza Celestiale",
+        description: "Resistenza ai danni necrotici e radianti.",
+      },
+    ],
+    spells: {
+      ability: "Carisma",
+      saveDC: 13,
+      attackBonus: 5,
+      slots: { 1: { total: 5, used: 0 }, 2: { total: 2, used: 0 } },
+      list: [
+        { level: 0, name: "Eldritch Blast" },
+        { level: 1, name: "Cure Wounds" },
+        { level: 1, name: "Divine Favor" },
+        { level: 1, name: "Shield of Faith" },
+        { level: 2, name: "Misty Step" },
+        { level: 2, name: "Find Steed" },
+      ],
+    },
+    imageUrl: "valenor.jpg",
+  };
 
-    let characterData = {
-        name: "Valenor Lightbringer", class: "Paladino 5 / Warlock 1", level: 6, background: "Soldato", race: "Aasimar", alignment: "Neutrale Buono", ac: 18, speed: "30ft",
-        hp: { max: 60, current: 60, temp: 0 },
-        hitDice: { total: 5, type: 'd10', states: [false, false, false, false, false] }, // Struttura Dati Modificata
-        deathSaves: { successes: 0, failures: 0 },
-        proficiencyBonus: 3,
-        abilities: { str: 17, dex: 10, con: 14, int: 8, wis: 12, cha: 15 },
-        savingThrows: { str: true, dex: false, con: true, int: false, wis: true, cha: true },
-        skills: { athletics: { proficient: true }, acrobatics: { proficient: false }, sleightOfHand: { proficient: false }, stealth: { proficient: false }, arcana: { proficient: false }, history: { proficient: false }, investigation: { proficient: false }, nature: { proficient: false }, religion: { proficient: false }, animalHandling: { proficient: false }, insight: { proficient: true }, medicine: { proficient: false }, perception: { proficient: false }, survival: { proficient: false }, deception: { proficient: false }, intimidation: { proficient: true }, performance: { proficient: false }, persuasion: { proficient: true }},
-        proficiencies: { armor: "Armature Leggere, Medie, Pesanti, Scudi", weapons: "Armi Semplici, Armi da Guerra", tools: "Set da Gioco (dadi)", languages: "Comune, Celestiale, Orchesco" },
-        attacks: [ { name: "Egen-Vath", bonus: "+7", damage: "2d6s + 1d4f + 4", notes: "Se l'attacco manca, l'avversario subisce comunque 3 danni da fuoco." }, { name: "Spada Lunga (+1)", bonus: "+7", damage: "1d8+6 Tagliente", notes: "Stile Duellare (+2 danni) attivo." }, { name: "Eldritch Blast", bonus: "+5", damage: "2d10 Forza", notes: "Gittata 18m, due raggi." } ],
-        equipment: [ { name: "Zaino del Sacerdote", quantity: 1 }, { name: "Simbolo Sacro di Torm", quantity: 1 }, { name: "Kit da Guaritore", quantity: 10 } ],
-        coins: { cp: 0, sp: 0, ep: 0, gp: 15, pp: 0 },
-        personality: { appearance: "Aasimar alto e imponente, con capelli bianco-argento e occhi penetranti. Indossa un'armatura ornata bianca e oro.", backstory: "Ex-caporale degli Evenswords, ha stretto un patto con un'entità celestiale dopo aver perso la memoria e le sue certezze, guidato da visioni di un drago argentato." },
-        features: [ { name: "Attaccante Selvaggio", description: "Una volta per turno, quando colpisci con un'arma, puoi ritirare i dadi di danno e usare il risultato migliore." }, { name: "Duellare", description: "Quando impugni un'arma da mischia in una mano e nessun'altra arma, ottieni un bonus di +2 ai tiri per i danni con quell'arma." }, { name: "Percezione Divina", description: "Come azione bonus, percepisci Celestiali, Immondi e Non-morti entro 18m." }, { name: "Imposizione delle Mani", description: "Hai una riserva di 25 Punti Vita (5 x liv. Paladino) per curare." }, { name: "Resistenza Celestiale", description: "Resistenza ai danni necrotici e radianti."} ],
-        spells: { ability: "Carisma", saveDC: 13, attackBonus: 5, slots: { 1: { total: 5, used: 0 }, 2: { total: 2, used: 0 } }, list: [ { level: 0, name: "Eldritch Blast" }, { level: 1, name: "Cure Wounds" }, { level: 1, name: "Divine Favor" }, { level: 1, name: "Shield of Faith" }, { level: 2, name: "Misty Step" }, { level: 2, name: "Find Steed" } ] },
-        imageUrl: "valenor.jpg"
-    };
-    const SKILL_MAP = { str: ['athletics'], dex: ['acrobatics', 'sleightOfHand', 'stealth'], int: ['arcana', 'history', 'investigation', 'nature', 'religion'], wis: ['animalHandling', 'insight', 'medicine', 'perception', 'survival'], cha: ['deception', 'intimidation', 'performance', 'persuasion'] };
-    let isEditMode = false;
+  const SKILL_MAP = {
+    str: ["athletics"],
+    dex: ["acrobatics", "sleightOfHand", "stealth"],
+    int: ["arcana", "history", "investigation", "nature", "religion"],
+    wis: ["animalHandling", "insight", "medicine", "perception", "survival"],
+    cha: ["deception", "intimidation", "performance", "persuasion"],
+  };
+  let isEditMode = false;
 
-    function renderSheet() {
-        renderHeader(); renderKeyStats(); renderAbilities(); renderCombatStats();
-        renderAttacks(); renderEquipment(); renderPersonality(); renderFeatures();
-        renderProficiencies(); renderSpells();
-    }
-    
-    function renderCombatStats() {
-        const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
-        document.getElementById('ac-box').innerHTML = `<span class="stat-value view-item">${characterData.ac}</span><input type="number" class="stat-value edit-item" data-path="ac" value="${characterData.ac}"><span class="stat-label">Classe Armatura</span>`;
-        document.getElementById('initiative-box').innerHTML = `<span class="stat-value">${initiative >= 0 ? '+' : ''}${initiative}</span><span class="stat-label">Iniziativa</span>`;
-        document.getElementById('speed-box').innerHTML = `<span class="stat-value view-item">${characterData.speed}</span><input type="text" class="stat-value edit-item" data-path="speed" value="${characterData.speed}"><span class="stat-label">Velocità</span>`;
-        document.getElementById('hp-box').innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
-        
-        const hd = characterData.hitDice;
-        let dieTypes = ['d6', 'd8', 'd10', 'd12'];
-        let dieButtonsHTML = '';
-        dieTypes.forEach(type => { dieButtonsHTML += `<button class="btn btn-small ${hd.type === type ? 'active' : ''}" data-hd-type-change="${type}">${type}</button>`; });
+  function renderSheet() {
+    renderHeader();
+    renderKeyStats();
+    renderAbilities();
+    renderCombatStats();
+    renderAttacks();
+    renderEquipment();
+    renderPersonality();
+    renderFeatures();
+    renderProficiencies();
+    renderSpells();
+  }
 
-        let hitDiceHTML = `<h4>Dadi Vita</h4>
+  function renderCombatStats() {
+    const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
+    document.getElementById(
+      "ac-box"
+    ).innerHTML = `<span class="stat-value view-item">${characterData.ac}</span><input type="number" class="stat-value edit-item" data-path="ac" value="${characterData.ac}"><span class="stat-label">Classe Armatura</span>`;
+    document.getElementById(
+      "initiative-box"
+    ).innerHTML = `<span class="stat-value">${
+      initiative >= 0 ? "+" : ""
+    }${initiative}</span><span class="stat-label">Iniziativa</span>`;
+    document.getElementById(
+      "speed-box"
+    ).innerHTML = `<span class="stat-value view-item">${characterData.speed}</span><input type="text" class="stat-value edit-item" data-path="speed" value="${characterData.speed}"><span class="stat-label">Velocità</span>`;
+    document.getElementById(
+      "hp-box"
+    ).innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
+
+    const hd = characterData.hitDice;
+    let dieTypes = ["d6", "d8", "d10", "d12"];
+    let dieButtonsHTML = "";
+    dieTypes.forEach((type) => {
+      dieButtonsHTML += `<button class="btn btn-small ${
+        hd.type === type ? "active" : ""
+      }" data-hd-type-change="${type}">${type}</button>`;
+    });
+
+    let hitDiceHTML = `<h4>Dadi Vita</h4>
             <div class="view-item">
                 <div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div>
                 <div class="tracker-grid">`;
-        hd.diceStates.forEach((isUsed, index) => {
-            hitDiceHTML += `<span class="hit-dice-icon ${isUsed ? 'used' : ''}" data-type="hd" data-index="${index}">❤️</span>`;
-        });
-        hitDiceHTML += `</div></div>`;
-        hitDiceHTML += `<div class="edit-item edit-item-controls">
+    hd.diceStates.forEach((isUsed, index) => {
+      hitDiceHTML += `<span class="hit-dice-icon ${
+        isUsed ? "used" : ""
+      }" data-type="hd" data-index="${index}">❤️</span>`;
+    });
+    hitDiceHTML += `</div></div>`;
+    hitDiceHTML += `<div class="edit-item edit-item-controls">
                 <div class="control-group"><label>Num. Dadi</label><div>
                     <button class="btn btn-small" data-hd-total-change="-1">-</button>
                     <span style="padding: 0 10px; font-weight: bold;">${hd.total}</span>
@@ -55,68 +193,139 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div></div>
                 <div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieButtonsHTML}</div></div>
             </div>`;
-        document.getElementById('hit-dice-box').innerHTML = hitDiceHTML;
+    document.getElementById("hit-dice-box").innerHTML = hitDiceHTML;
 
-        let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
-        const deathSaves = [['Successi', 'success'], ['Fallimenti', 'failure']];
-        deathSaves.forEach(([label, type]) => {
-            dsHTML += `<div class="death-save"><span>${label}</span><div class="tracker-grid">`;
-            for (let i = 0; i < 3; i++) {
-                const isToggled = i < characterData.deathSaves[type + 'es'];
-                dsHTML += `<span class="skull-icon ${isToggled ? 'toggled ' + type : ''}" data-type="ds" data-ds-type="${type}" data-index="${i}">💀</span>`;
-            }
-            dsHTML += `</div></div>`;
+    let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
+    const deathSaves = [
+      ["Successi", "success"],
+      ["Fallimenti", "failure"],
+    ];
+    deathSaves.forEach(([label, type]) => {
+      dsHTML += `<div class="death-save"><span>${label}</span><div class="tracker-grid">`;
+      for (let i = 0; i < 3; i++) {
+        const isToggled = i < characterData.deathSaves[type + "es"];
+        dsHTML += `<span class="skull-icon ${
+          isToggled ? "toggled " + type : ""
+        }" data-type="ds" data-ds-type="${type}" data-index="${i}">💀</span>`;
+      }
+      dsHTML += `</div></div>`;
+    });
+    document.getElementById("death-saves-box").innerHTML = dsHTML;
+  }
+
+  function handleInteraction(e) {
+    const target = e.target;
+    if (target.matches(".add-btn")) {
+      const type = target.dataset.type;
+      if (type === "attacks")
+        characterData.attacks.push({
+          name: "Nuovo Attacco",
+          bonus: "+0",
+          damage: "1d4",
+          notes: "",
         });
-        document.getElementById('death-saves-box').innerHTML = dsHTML;
-    }
-
-    function handleInteraction(e) {
-        const target = e.target;
-        if (target.matches('.add-btn')) { /*...*/ }
-        if (target.matches('.delete-btn')) { /*...*/ }
-        if (target.matches('.hit-dice-icon')) {
-            const index = parseInt(target.dataset.index, 10);
-            characterData.hitDice.diceStates[index] = !characterData.hitDice.diceStates[index]; // Logica modificata
-            renderCombatStats();
-        }
-        if (isEditMode && target.matches('[data-hd-total-change]')) {
-            const change = parseInt(target.dataset.hdTotalChange, 10);
-            const newTotal = Math.max(0, characterData.hitDice.total + change);
-            characterData.hitDice.total = newTotal;
-            // Sincronizza l'array degli stati con il nuovo totale
-            while (characterData.hitDice.diceStates.length < newTotal) {
-                characterData.hitDice.diceStates.push(false);
-            }
-            characterData.hitDice.diceStates.length = newTotal;
-            renderCombatStats();
-        }
-        if (isEditMode && target.matches('[data-hd-type-change]')) {
-            characterData.hitDice.type = target.dataset.hdTypeChange;
-            renderCombatStats();
-        }
-        if (target.matches('.tracker-dot[data-type="spell"]')) { /*...*/ }
-        if (target.matches('[data-hp-type="temp"]')) { const amount = parseInt(target.dataset.amount, 10); characterData.hp.temp = Math.max(0, characterData.hp.temp + amount); renderCombatStats(); }
-        if (target.matches('.skull-icon')) { const type = target.dataset.dsType; const index = parseInt(target.dataset.index, 10); const key = type + 'es'; characterData.deathSaves[key] = (characterData.deathSaves[key] === index + 1) ? index : index + 1; renderCombatStats(); }
-        if(target.id === 'heal-btn' || target.id === 'damage-btn') { const val = parseInt(document.getElementById('hp-change-value').value, 10); const isHealing = target.id === 'heal-btn'; characterData.hp.current = isHealing ? Math.min(characterData.hp.max, characterData.hp.current + val) : Math.max(0, characterData.hp.current - val); renderCombatStats(); }
-    }
-    
-    function saveData() {
-        document.querySelectorAll('[data-path]').forEach(el => {
-            const path = el.dataset.path.split('.');
-            let obj = characterData;
-            for (let i = 0; i < path.length - 1; i++) { obj = obj[path[i]]; }
-            if (path[0] === 'hitDice') return; // I Dadi Vita vengono gestiti solo con i bottoni
-            const value = el.type === 'number' ? parseInt(el.value, 10) || 0 : el.value;
-            obj[path[path.length - 1]] = value;
+      if (type === "equipment")
+        characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 });
+      if (type === "features")
+        characterData.features.push({
+          name: "Nuovo Privilegio",
+          description: "Descrizione...",
         });
-        document.querySelectorAll('.skill-prof.edit-item').forEach(el => { const key = el.dataset.skill; const type = el.dataset.type; if (type === 'save') { characterData.savingThrows[key] = el.checked; } else { characterData.skills[key].proficient = el.checked; } });
-        localStorage.setItem('dndCharacterSheet', JSON.stringify(characterData));
-        const feedback = document.getElementById('save-feedback');
-        feedback.textContent = 'Salvato!'; feedback.classList.add('visible');
-        setTimeout(() => feedback.classList.remove('visible'), 2000);
+      if (type === "spells.list")
+        characterData.spells.list.push({ level: 1, name: "Nuovo Incantesimo" });
+      renderSheet();
     }
+    if (target.matches(".delete-btn")) {
+      const type = target.dataset.type;
+      const index = parseInt(target.dataset.index, 10);
+      const list = type.split(".").reduce((o, i) => o[i], characterData);
+      list.splice(index, 1);
+      renderSheet();
+    }
+    if (target.matches(".hit-dice-icon")) {
+      const index = parseInt(target.dataset.index, 10);
+      characterData.hitDice.diceStates[index] =
+        !characterData.hitDice.diceStates[index];
+      renderCombatStats();
+    }
+    if (isEditMode && target.matches("[data-hd-total-change]")) {
+      const change = parseInt(target.dataset.hdTotalChange, 10);
+      const newTotal = Math.max(0, characterData.hitDice.total + change);
+      characterData.hitDice.total = newTotal;
+      while (characterData.hitDice.diceStates.length < newTotal) {
+        characterData.hitDice.diceStates.push(false);
+      }
+      characterData.hitDice.diceStates.length = newTotal;
+      renderCombatStats();
+    }
+    if (isEditMode && target.matches("[data-hd-type-change]")) {
+      characterData.hitDice.type = target.dataset.hdTypeChange;
+      renderCombatStats();
+    }
+    if (target.matches('.tracker-dot[data-type="spell"]')) {
+      const level = target.dataset.level;
+      const index = parseInt(target.dataset.index, 10);
+      characterData.spells.slots[level].used =
+        characterData.spells.slots[level].used === index + 1
+          ? index
+          : index + 1;
+      renderSpells();
+    }
+    if (target.matches('[data-hp-type="temp"]')) {
+      const amount = parseInt(target.dataset.amount, 10);
+      characterData.hp.temp = Math.max(0, characterData.hp.temp + amount);
+      renderCombatStats();
+    }
+    if (target.matches(".skull-icon")) {
+      const type = target.dataset.dsType;
+      const index = parseInt(target.dataset.index, 10);
+      const key = type + "es";
+      characterData.deathSaves[key] =
+        characterData.deathSaves[key] === index + 1 ? index : index + 1;
+      renderCombatStats();
+    }
+    if (target.id === "heal-btn" || target.id === "damage-btn") {
+      const val = parseInt(
+        document.getElementById("hp-change-value").value,
+        10
+      );
+      const isHealing = target.id === "heal-btn";
+      characterData.hp.current = isHealing
+        ? Math.min(characterData.hp.max, characterData.hp.current + val)
+        : Math.max(0, characterData.hp.current - val);
+      renderCombatStats();
+    }
+  }
 
-  // --- Il resto dello script rimane invariato ---
+  function saveData() {
+    document.querySelectorAll("[data-path]").forEach((el) => {
+      const path = el.dataset.path.split(".");
+      let obj = characterData;
+      for (let i = 0; i < path.length - 1; i++) {
+        obj = obj[path[i]];
+      }
+      if (path[0] === "hitDice") return; // I Dadi Vita vengono gestiti solo con i bottoni e la loro modifica è già in characterData
+      const value =
+        el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
+      obj[path[path.length - 1]] = value;
+    });
+    document.querySelectorAll(".skill-prof.edit-item").forEach((el) => {
+      const key = el.dataset.skill;
+      const type = el.dataset.type;
+      if (type === "save") {
+        characterData.savingThrows[key] = el.checked;
+      } else {
+        characterData.skills[key].proficient = el.checked;
+      }
+    });
+    localStorage.setItem("dndCharacterSheet", JSON.stringify(characterData));
+    const feedback = document.getElementById("save-feedback");
+    feedback.textContent = "Salvato!";
+    feedback.classList.add("visible");
+    setTimeout(() => feedback.classList.remove("visible"), 2000);
+  }
+
+  // Le funzioni da qui in poi sono complete e non necessitano modifiche per questa richiesta
   function renderHeader() {
     const d = characterData;
     document.getElementById(
@@ -260,7 +469,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadData() {
     const savedData = localStorage.getItem("dndCharacterSheet");
     if (savedData) {
-      const loadedData = JSON.parse(savedData);
+      let loadedData = JSON.parse(savedData);
+      if (
+        loadedData.hitDice &&
+        loadedData.hitDice.used !== undefined &&
+        !loadedData.hitDice.diceStates
+      ) {
+        loadedData.hitDice.diceStates = Array(loadedData.hitDice.total)
+          .fill(false)
+          .map((_, i) => i < loadedData.hitDice.used);
+        delete loadedData.hitDice.used;
+      }
       const merge = (target, source) => {
         for (const key of Object.keys(source)) {
           if (

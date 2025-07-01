@@ -288,13 +288,13 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
-  text-shadow: 0 0 5px #000;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 .hit-dice-icon:hover {
   transform: scale(1.15);
 }
 .hit-dice-icon.used {
-  opacity: 0.3;
+  opacity: 0.2;
   filter: grayscale(100%);
   text-shadow: none;
 }
