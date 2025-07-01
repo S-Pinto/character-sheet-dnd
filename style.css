@@ -71,7 +71,7 @@ body {
 
 #details-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(4, 1fr); /* Modificato a 4 colonne */
     gap: 1rem;
     margin-top: 1rem;
     background: var(--c-surface);
@@ -92,6 +92,13 @@ body {
 .ability-box {
     background: var(--c-surface); padding: 1rem; border-radius: var(--border-radius);
     text-align: center; box-shadow: var(--shadow); border: 1px solid var(--c-border);
+    display: flex;
+    flex-direction: column;
+}
+.ability-header {
+    border-bottom: 2px solid var(--c-border);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 .ability-box h3 {
     font-family: var(--font-header); font-size: 1.8rem; margin: 0;
@@ -99,6 +106,27 @@ body {
 }
 .ability-score { font-size: 2.5rem; font-weight: bold; color: white; }
 .ability-modifier { font-size: 1.2rem; color: var(--c-label); }
+
+/* Nuova Sezione Skill */
+.skill-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+.skill-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9em;
+}
+.skill-list .skill-prof {
+    margin-right: 0.5rem;
+}
+.skill-list .skill-name {
+    flex-grow: 1;
+}
 
 /* Griglia Contenuto Principale */
 #main-content-grid {
@@ -119,8 +147,12 @@ body {
     color: var(--c-primary); border-bottom: 2px solid var(--c-border); padding-bottom: 0.5rem;
 }
 
-/* Carte Attacco */
-#attacks-container { display: flex; flex-direction: column; gap: 1rem; }
+/* Carte Attacco Personalizzate */
+#attacks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 .attack-card {
     border: 1px solid var(--c-border);
     border-left: 5px solid var(--c-danger);
@@ -154,6 +186,8 @@ input:focus, textarea:focus { outline: 2px solid var(--c-primary); }
 .view-mode .edit-item { display: none; }
 .edit-mode .view-item { display: none; }
 .edit-mode .edit-item { display: block; }
+.edit-mode .skill-prof { display: inline-block; }
+.view-mode .skill-prof { display: none; }
 
 /* Feedback di Salvataggio */
 #save-feedback {
