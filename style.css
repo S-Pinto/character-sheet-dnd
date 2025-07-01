@@ -132,6 +132,7 @@ body {
   grid-template-columns: 1.2fr 1.5fr 1.3fr;
   gap: 1.5rem;
   align-items: start;
+  margin-bottom: 1.5rem;
 }
 .box {
   background-color: var(--c-surface);
@@ -294,7 +295,7 @@ body {
   transform: scale(1.15);
 }
 .hit-dice-icon.used {
-  opacity: 0.2;
+  opacity: 0.3;
   filter: grayscale(100%);
   text-shadow: none;
 }
@@ -449,9 +450,105 @@ body {
 #personality-box div {
   margin-bottom: 1rem;
 }
-#spell-slots-grid {
+#spells-section-container {
+  background-color: var(--c-surface);
+}
+.spells-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.filter-btn {
+  background-color: var(--c-surface-light);
+  border: 1px solid var(--c-border);
+  color: var(--c-label);
+}
+.filter-btn.active {
+  background-color: var(--c-secondary);
+  color: white;
+  border-color: var(--c-secondary);
+}
+.spell-card {
+  background: var(--c-surface-light);
+  border: 1px solid var(--c-border);
+  border-left: 5px solid var(--c-primary);
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+.spell-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  cursor: pointer;
+  position: relative;
+}
+.spell-card-header .spell-name {
+  font-family: var(--font-header);
+  font-size: 1.5rem;
+  flex-grow: 1;
+}
+.spell-level {
+  background: var(--c-secondary);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.spell-tags {
+  display: flex;
+  gap: 0.5rem;
+}
+.spell-tag {
+  background: #111;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.8em;
+}
+.spell-card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+  padding: 0 1rem;
+}
+.spell-card.expanded .spell-card-body {
+  max-height: 600px;
+  padding: 1.5rem;
+  border-top: 1px solid var(--c-border);
+}
+.spell-details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.spell-detail h5 {
+  margin: 0 0 0.25rem 0;
+  color: var(--c-label);
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+.spell-detail p,
+.spell-detail input,
+.spell-detail textarea {
+  margin: 0;
+  color: white;
+  font-size: 0.9em;
+}
+.spell-card .delete-btn {
+  top: 1rem;
+  right: 1rem;
+}
+.spell-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
 }
 .tracker-dot {

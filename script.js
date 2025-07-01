@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- DATI DEL PERSONAGGIO ---
   let characterData = {
     name: "Valenor Lightbringer",
     class: "Paladino 5 / Warlock 1",
@@ -117,12 +116,66 @@ document.addEventListener("DOMContentLoaded", () => {
       attackBonus: 5,
       slots: { 1: { total: 5, used: 0 }, 2: { total: 2, used: 0 } },
       list: [
-        { level: 0, name: "Eldritch Blast" },
-        { level: 1, name: "Cure Wounds" },
-        { level: 1, name: "Divine Favor" },
-        { level: 1, name: "Shield of Faith" },
-        { level: 2, name: "Misty Step" },
-        { level: 2, name: "Find Steed" },
+        {
+          name: "Eldritch Blast",
+          level: 0,
+          school: "Invocazione",
+          castingTime: "1 Azione",
+          range: "36m",
+          duration: "Istantanea",
+          components: "V, S",
+          materials: "",
+          isRitual: false,
+          isConcentration: false,
+          description:
+            "Un raggio di energia crepitante si protende verso una creatura. Colpisce con un attacco di incantesimo a distanza. Infligge 1d10 danni da forza.",
+          prepared: true,
+        },
+        {
+          name: "Cure Wounds",
+          level: 1,
+          school: "Evocazione",
+          castingTime: "1 Azione",
+          range: "Tocco",
+          duration: "Istantanea",
+          components: "V, S",
+          materials: "",
+          isRitual: false,
+          isConcentration: false,
+          description:
+            "Una creatura che tocchi recupera un numero di punti ferita pari a 1d8 + il tuo modificatore di abilità da incantatore.",
+          prepared: true,
+        },
+        {
+          name: "Shield of Faith",
+          level: 1,
+          school: "Abiurazione",
+          castingTime: "1 Azione Bonus",
+          range: "18m",
+          duration: "10 minuti",
+          components: "V, S, M",
+          materials: "Un piccolo pezzo di pergamena con un testo sacro",
+          isRitual: false,
+          isConcentration: true,
+          description:
+            "Una creatura a gittata ottiene un bonus di +2 alla CA per la durata.",
+          prepared: true,
+        },
+        {
+          name: "Misty Step",
+          level: 2,
+          school: "Evocazione",
+          castingTime: "1 Azione Bonus",
+          range: "Sé",
+          duration: "Istantanea",
+          components: "V",
+          materials: "",
+          isRitual: false,
+          isConcentration: false,
+          description:
+            "Ti teletrasporti in uno spazio non occupato che puoi vedere entro 9 metri.",
+          prepared: true,
+        },
       ],
     },
     imageUrl: "valenor.jpg",
@@ -136,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cha: ["deception", "intimidation", "performance", "persuasion"],
   };
   let isEditMode = false;
+  let spellFilter = "all";
 
   function renderSheet() {
     renderHeader();
@@ -151,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderCombatStats() {
-    // --- HP, AC, Initiative, Speed (invariato) ---
     const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
     document.getElementById(
       "ac-box"
@@ -168,12 +221,9 @@ document.addEventListener("DOMContentLoaded", () => {
       "hp-box"
     ).innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
 
-    // --- HIT DICE BOX (Logica Riscratta) ---
     const hd = characterData.hitDice;
     const hitDiceBox = document.getElementById("hit-dice-box");
-    hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`; // Pulisce e imposta il titolo
-
-    // Contenuto per la MODALITÀ VISTA
+    hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`;
     const viewContent = document.createElement("div");
     viewContent.className = "view-item";
     let viewHeartsHTML = "";
@@ -185,7 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
     viewContent.innerHTML = `<div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div><div class="tracker-grid">${viewHeartsHTML}</div>`;
     hitDiceBox.appendChild(viewContent);
 
-    // Contenuto per la MODALITÀ MODIFICA
     const editContent = document.createElement("div");
     editContent.className = "edit-item edit-item-controls";
     let dieTypes = ["d6", "d8", "d10", "d12"];
@@ -195,22 +244,9 @@ document.addEventListener("DOMContentLoaded", () => {
         hd.type === type ? "active" : ""
       }" data-hd-type-change="${type}">${type}</button>`;
     });
-    editContent.innerHTML = `
-            <div class="control-group">
-                <label>Num. Dadi</label>
-                <div>
-                    <button class="btn btn-small" data-hd-total-change="-1">-</button>
-                    <span style="padding: 0 10px; font-weight: bold;">${hd.total}</span>
-                    <button class="btn btn-small" data-hd-total-change="1">+</button>
-                </div>
-            </div>
-            <div class="control-group">
-                <label>Tipo Dado</label>
-                <div class="die-type-buttons">${dieButtonsHTML}</div>
-            </div>`;
+    editContent.innerHTML = `<div class="control-group"><label>Num. Dadi</label><div><button class="btn btn-small" data-hd-total-change="-1">-</button><span style="padding: 0 10px; font-weight: bold;">${hd.total}</span><button class="btn btn-small" data-hd-total-change="1">+</button></div></div><div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieButtonsHTML}</div></div>`;
     hitDiceBox.appendChild(editContent);
 
-    // --- DEATH SAVES (invariato ma verificato) ---
     let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
     const deathSaves = [
       ["Successi", "success"],
@@ -229,7 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("death-saves-box").innerHTML = dsHTML;
   }
 
-  // --- FUNZIONE DI INTERAZIONE (Modificata) ---
   function handleInteraction(e) {
     const target = e.target;
     if (target.matches(".add-btn")) {
@@ -249,7 +284,16 @@ document.addEventListener("DOMContentLoaded", () => {
           description: "Descrizione...",
         });
       if (type === "spells.list")
-        characterData.spells.list.push({ level: 1, name: "Nuovo Incantesimo" });
+        characterData.spells.list.push({
+          level: 1,
+          name: "Nuovo Incantesimo",
+          prepared: false,
+          castingTime: "1 Azione",
+          range: "N/A",
+          duration: "Istantanea",
+          components: "V, S, M",
+          description: "",
+        });
       renderSheet();
     }
     if (target.matches(".delete-btn")) {
@@ -259,15 +303,12 @@ document.addEventListener("DOMContentLoaded", () => {
       list.splice(index, 1);
       renderSheet();
     }
-
-    // Logica corretta per i cuori dei Dadi Vita
     if (target.matches(".hit-dice-icon")) {
       const index = parseInt(target.dataset.index, 10);
       characterData.hitDice.diceStates[index] =
         !characterData.hitDice.diceStates[index];
       renderCombatStats();
     }
-
     if (isEditMode && target.matches("[data-hd-total-change]")) {
       const change = parseInt(target.dataset.hdTotalChange, 10);
       const newTotal = Math.max(0, characterData.hitDice.total + change);
@@ -282,14 +323,27 @@ document.addEventListener("DOMContentLoaded", () => {
       characterData.hitDice.type = target.dataset.hdTypeChange;
       renderCombatStats();
     }
-
     if (target.matches('.tracker-dot[data-type="spell"]')) {
       const level = target.dataset.level;
-      const index = parseInt(target.dataset.index, 10);
-      characterData.spells.slots[level].used =
-        characterData.spells.slots[level].used === index + 1
-          ? index
-          : index + 1;
+      const slots = characterData.spells.slots[level];
+      if (slots.used < slots.total) {
+        slots.used++;
+      }
+      renderSpells();
+    }
+    if (target.matches("#long-rest-btn")) {
+      for (const level in characterData.spells.slots) {
+        characterData.spells.slots[level].used = 0;
+      }
+      renderSpells();
+    }
+    if (target.closest(".spell-card-header")) {
+      if (!e.target.matches('input[type="checkbox"]')) {
+        target.closest(".spell-card").classList.toggle("expanded");
+      }
+    }
+    if (target.matches(".filter-btn")) {
+      spellFilter = target.dataset.filter;
       renderSpells();
     }
     if (target.matches('[data-hp-type="temp"]')) {
@@ -318,7 +372,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- IL RESTO DELLO SCRIPT RIMANE INVARIATO ---
   function saveData() {
     document.querySelectorAll("[data-path]").forEach((el) => {
       const path = el.dataset.path.split(".");
@@ -326,7 +379,6 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 0; i < path.length - 1; i++) {
         obj = obj[path[i]];
       }
-      // Escludo i dati dei Dadi Vita perché li gestiamo solo con i bottoni e sono già aggiornati.
       if (path[0] === "hitDice") return;
       const value =
         el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
@@ -341,71 +393,63 @@ document.addEventListener("DOMContentLoaded", () => {
         characterData.skills[key].proficient = el.checked;
       }
     });
+    characterData.spells.list.forEach((spell, index) => {
+      const prepCheckbox = document.querySelector(
+        `[data-prepare-index="${index}"]`
+      );
+      if (prepCheckbox) {
+        spell.prepared = prepCheckbox.checked;
+      }
+    });
     localStorage.setItem("dndCharacterSheet", JSON.stringify(characterData));
     const feedback = document.getElementById("save-feedback");
     feedback.textContent = "Salvato!";
     feedback.classList.add("visible");
     setTimeout(() => feedback.classList.remove("visible"), 2000);
   }
-
-  function renderHeader() {
-    const d = characterData;
-    document.getElementById(
-      "portrait-container"
-    ).innerHTML = `<div class="view-item"><img id="portrait-img" src="${d.imageUrl}" alt="Ritratto" onerror="this.style.display='none'"></div><div class="edit-item"><img src="${d.imageUrl}" alt="Ritratto" onerror="this.style.display='none'"><label>URL o nome file</label><input type="text" data-path="imageUrl" value="${d.imageUrl}"></div>`;
-    document.getElementById(
-      "character-name-display"
-    ).innerHTML = `<span class="view-item">${d.name}</span><input type="text" class="edit-item" data-path="name" value="${d.name}">`;
-    document.getElementById(
-      "details-grid"
-    ).innerHTML = `<div class="detail-box"><label>Classe & Multiclasse</label><div class="view-item">${d.class}</div><input type="text" class="edit-item" data-path="class" value="${d.class}"></div><div class="detail-box"><label>Specie</label><div class="view-item">${d.race}</div><input type="text" class="edit-item" data-path="race" value="${d.race}"></div><div class="detail-box"><label>Background</label><div class="view-item">${d.background}</div><input type="text" class="edit-item" data-path="background" value="${d.background}"></div><div class="detail-box"><label>Allineamento</label><div class="view-item">${d.alignment}</div><input type="text" class="edit-item" data-path="alignment" value="${d.alignment}"></div>`;
+  function toggleEditMode() {
+    isEditMode = !isEditMode;
+    document.body.classList.toggle("edit-mode", isEditMode);
+    document.body.classList.toggle("view-mode", !isEditMode);
+    const btn = document.getElementById("edit-mode-btn");
+    btn.textContent = isEditMode ? "Salva e Blocca" : "Modifica Scheda";
+    btn.classList.toggle("save-btn", isEditMode);
+    renderSheet();
   }
-  function renderKeyStats() {
-    document.getElementById(
-      "key-stats-container"
-    ).innerHTML = `<div class="key-stat-box"><span class="stat-label">Livello Personaggio</span><span class="stat-value view-item">${characterData.level}</span><input class="stat-value edit-item" type="number" data-path="level" value="${characterData.level}"></div><div class="key-stat-box"><span class="stat-label">Bonus Competenza</span><span class="stat-value view-item">+${characterData.proficiencyBonus}</span><input class="stat-value edit-item" type="number" data-path="proficiencyBonus" value="${characterData.proficiencyBonus}"></div>`;
-  }
-  function renderAbilities() {
-    const container = document.getElementById("abilities-container");
-    container.innerHTML = "";
-    Object.keys(characterData.abilities).forEach((key) => {
-      const score = characterData.abilities[key];
-      const modifier = Math.floor((score - 10) / 2);
-      const isSavingThrowProficient = characterData.savingThrows[key];
-      const savingThrowBonus =
-        modifier +
-        (isSavingThrowProficient ? characterData.proficiencyBonus : 0);
-      let skillsHTML = '<ul class="skill-list">';
-      skillsHTML += `<li style="font-weight: bold; border-bottom: 1px solid var(--c-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem;"><span class="prof-dot view-item ${
-        isSavingThrowProficient ? "proficient" : ""
-      }"></span><input type="checkbox" class="skill-prof edit-item" data-type="save" data-skill="${key}" ${
-        isSavingThrowProficient ? "checked" : ""
-      }><span class="skill-name">Tiro Salvezza</span><strong>${
-        savingThrowBonus >= 0 ? "+" : ""
-      }${savingThrowBonus}</strong></li>`;
-      if (SKILL_MAP[key]) {
-        SKILL_MAP[key].forEach((skillKey) => {
-          const isProficient =
-            characterData.skills[skillKey]?.proficient || false;
-          const skillBonus =
-            modifier + (isProficient ? characterData.proficiencyBonus : 0);
-          skillsHTML += `<li><span class="prof-dot view-item ${
-            isProficient ? "proficient" : ""
-          }"></span><input type="checkbox" class="skill-prof edit-item" data-type="skill" data-skill="${skillKey}" ${
-            isProficient ? "checked" : ""
-          }><span class="skill-name">${
-            skillKey.charAt(0).toUpperCase() + skillKey.slice(1)
-          }</span><strong>${
-            skillBonus >= 0 ? "+" : ""
-          }${skillBonus}</strong></li>`;
-        });
+  function loadData() {
+    const savedData = localStorage.getItem("dndCharacterSheet");
+    if (savedData) {
+      let loadedData = JSON.parse(savedData);
+      if (
+        loadedData.hitDice &&
+        loadedData.hitDice.used !== undefined &&
+        !loadedData.hitDice.diceStates
+      ) {
+        loadedData.hitDice.diceStates = Array(loadedData.hitDice.total)
+          .fill(false)
+          .map((_, i) => i < loadedData.hitDice.used);
+        delete loadedData.hitDice.used;
       }
-      skillsHTML += "</ul>";
-      container.innerHTML += `<div class="ability-box"><div class="ability-header"><h3>${key.toUpperCase()}</h3><div class="ability-score view-item">${score}</div><input type="number" class="ability-score edit-item" data-path="abilities.${key}" value="${score}"><div class="ability-modifier">${
-        modifier >= 0 ? "+" : ""
-      }${modifier}</div></div>${skillsHTML}</div>`;
-    });
+      const merge = (target, source) => {
+        for (const key of Object.keys(source)) {
+          if (
+            source[key] instanceof Object &&
+            !Array.isArray(source[key]) &&
+            key in target &&
+            target[key] instanceof Object
+          ) {
+            merge(target[key], source[key]);
+          } else {
+            target[key] = source[key];
+          }
+        }
+        return target;
+      };
+      characterData = merge(characterData, loadedData);
+    }
   }
+
+  // Il resto delle funzioni di render (che sono corrette)
   function renderAttacks() {
     const c = document.getElementById("attacks-box");
     let h = `<h2>Attacchi</h2><div id="attacks-container">`;
@@ -461,65 +505,49 @@ document.addEventListener("DOMContentLoaded", () => {
       "proficiencies-box"
     ).innerHTML = `<h2>Altre Competenze</h2><h4>Armature</h4><p class="view-item">${c.armor}</p><textarea class="edit-item" data-path="proficiencies.armor">${c.armor}</textarea><h4>Armi</h4><p class="view-item">${c.weapons}</p><textarea class="edit-item" data-path="proficiencies.weapons">${c.weapons}</textarea><h4>Strumenti</h4><p class="view-item">${c.tools}</p><textarea class="edit-item" data-path="proficiencies.tools">${c.tools}</textarea><h4>Linguaggi</h4><p class="view-item">${c.languages}</p><textarea class="edit-item" data-path="proficiencies.languages">${c.languages}</textarea>`;
   }
-  function renderSpells() {
-    const s = characterData.spells;
-    let h = `<h2>Incantesimi</h2><div class="main-stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem;"><div class="stat-box"><span class="stat-value view-item">${s.ability}</span><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${s.ability}"><span class="stat-label">Abilità</span></div><div class="stat-box"><span class="stat-value view-item">${s.saveDC}</span><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${s.saveDC}"><span class="stat-label">CD</span></div><div class="stat-box"><span class="stat-value view-item">${s.attackBonus}</span><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${s.attackBonus}"><span class="stat-label">Attacco</span></div></div><h4>Slot</h4><div class="spell-slots-grid">`;
-    Object.entries(s.slots).forEach(([lvl, data]) => {
-      h += `<div><h5>Lvl ${lvl}</h5><div class="tracker-grid">`;
-      for (let i = 0; i < data.total; i++)
-        h += `<div class="tracker-dot ${
-          i < data.used ? "used" : ""
-        }" data-type="spell" data-level="${lvl}" data-index="${i}"></div>`;
-      h += `</div></div>`;
-    });
-    h += `</div><ul class="item-list">`;
-    s.list.forEach((spell, i) => {
-      h += `<li><div class="view-item"><strong>${spell.name}</strong> (Lvl ${spell.level})</div><div class="edit-item" style="display:flex;gap:5px;width:100%;"><input type="number" data-path="spells.list.${i}.level" value="${spell.level}" style="flex-basis:60px;"><input type="text" data-path="spells.list.${i}.name" value="${spell.name}"><button class="delete-btn" data-type="spells.list" data-index="${i}">X</button></div></li>`;
-    });
-    h += `</ul><button class="add-btn edit-item" data-type="spells.list">+</button>`;
-    document.getElementById("spells-box").innerHTML = h;
-  }
-  function toggleEditMode() {
-    isEditMode = !isEditMode;
-    document.body.classList.toggle("edit-mode", isEditMode);
-    document.body.classList.toggle("view-mode", !isEditMode);
-    const btn = document.getElementById("edit-mode-btn");
-    btn.textContent = isEditMode ? "Salva e Blocca" : "Modifica Scheda";
-    btn.classList.toggle("save-btn", isEditMode);
-    renderSheet();
-  }
-  function loadData() {
-    const savedData = localStorage.getItem("dndCharacterSheet");
-    if (savedData) {
-      let loadedData = JSON.parse(savedData);
-      if (
-        loadedData.hitDice &&
-        loadedData.hitDice.used !== undefined &&
-        !loadedData.hitDice.diceStates
-      ) {
-        loadedData.hitDice.diceStates = Array(loadedData.hitDice.total)
-          .fill(false)
-          .map((_, i) => i < loadedData.hitDice.used);
-        delete loadedData.hitDice.used;
+  function renderAbilities() {
+    const container = document.getElementById("abilities-container");
+    container.innerHTML = "";
+    Object.keys(characterData.abilities).forEach((key) => {
+      const score = characterData.abilities[key];
+      const modifier = Math.floor((score - 10) / 2);
+      const isSavingThrowProficient = characterData.savingThrows[key];
+      const savingThrowBonus =
+        modifier +
+        (isSavingThrowProficient ? characterData.proficiencyBonus : 0);
+      let skillsHTML = '<ul class="skill-list">';
+      skillsHTML += `<li style="font-weight: bold; border-bottom: 1px solid var(--c-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem;"><span class="prof-dot view-item ${
+        isSavingThrowProficient ? "proficient" : ""
+      }"></span><input type="checkbox" class="skill-prof edit-item" data-type="save" data-skill="${key}" ${
+        isSavingThrowProficient ? "checked" : ""
+      }><span class="skill-name">Tiro Salvezza</span><strong>${
+        savingThrowBonus >= 0 ? "+" : ""
+      }${savingThrowBonus}</strong></li>`;
+      if (SKILL_MAP[key]) {
+        SKILL_MAP[key].forEach((skillKey) => {
+          const isProficient =
+            characterData.skills[skillKey]?.proficient || false;
+          const skillBonus =
+            modifier + (isProficient ? characterData.proficiencyBonus : 0);
+          skillsHTML += `<li><span class="prof-dot view-item ${
+            isProficient ? "proficient" : ""
+          }"></span><input type="checkbox" class="skill-prof edit-item" data-type="skill" data-skill="${skillKey}" ${
+            isProficient ? "checked" : ""
+          }><span class="skill-name">${
+            skillKey.charAt(0).toUpperCase() + skillKey.slice(1)
+          }</span><strong>${
+            skillBonus >= 0 ? "+" : ""
+          }${skillBonus}</strong></li>`;
+        });
       }
-      const merge = (target, source) => {
-        for (const key of Object.keys(source)) {
-          if (
-            source[key] instanceof Object &&
-            !Array.isArray(source[key]) &&
-            key in target &&
-            target[key] instanceof Object
-          ) {
-            merge(target[key], source[key]);
-          } else {
-            target[key] = source[key];
-          }
-        }
-        return target;
-      };
-      characterData = merge(characterData, loadedData);
-    }
+      skillsHTML += "</ul>";
+      container.innerHTML += `<div class="ability-box"><div class="ability-header"><h3>${key.toUpperCase()}</h3><div class="ability-score view-item">${score}</div><input type="number" class="ability-score edit-item" data-path="abilities.${key}" value="${score}"><div class="ability-modifier">${
+        modifier >= 0 ? "+" : ""
+      }${modifier}</div></div>${skillsHTML}</div>`;
+    });
   }
+
+  // INIZIALIZZAZIONE
   loadData();
   renderSheet();
   document.body.classList.add("view-mode");
@@ -540,9 +568,6 @@ document.addEventListener("DOMContentLoaded", () => {
         characterData.skills[key].proficient = e.target.checked;
       }
       renderAbilities();
-    }
-    if (e.target.matches('[data-type^="ds-"]')) {
-      handleInteraction(e);
     }
   });
   document.body.addEventListener("input", (e) => {
