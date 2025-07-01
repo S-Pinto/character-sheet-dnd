@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // --- DATI DEL PERSONAGGIO ---
   let characterData = {
     name: "Valenor Lightbringer",
     class: "Paladino 5 / Warlock 1",
@@ -150,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderCombatStats() {
+    // --- HP, AC, Initiative, Speed (invariato) ---
     const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
     document.getElementById(
       "ac-box"
@@ -166,7 +168,26 @@ document.addEventListener("DOMContentLoaded", () => {
       "hp-box"
     ).innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
 
+    // --- HIT DICE BOX (Logica Riscratta) ---
     const hd = characterData.hitDice;
+    const hitDiceBox = document.getElementById("hit-dice-box");
+    hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`; // Pulisce e imposta il titolo
+
+    // Contenuto per la MODALITÀ VISTA
+    const viewContent = document.createElement("div");
+    viewContent.className = "view-item";
+    let viewHeartsHTML = "";
+    hd.diceStates.forEach((isUsed, index) => {
+      viewHeartsHTML += `<span class="hit-dice-icon ${
+        isUsed ? "used" : ""
+      }" data-type="hd" data-index="${index}">❤️</span>`;
+    });
+    viewContent.innerHTML = `<div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div><div class="tracker-grid">${viewHeartsHTML}</div>`;
+    hitDiceBox.appendChild(viewContent);
+
+    // Contenuto per la MODALITÀ MODIFICA
+    const editContent = document.createElement("div");
+    editContent.className = "edit-item edit-item-controls";
     let dieTypes = ["d6", "d8", "d10", "d12"];
     let dieButtonsHTML = "";
     dieTypes.forEach((type) => {
@@ -174,27 +195,22 @@ document.addEventListener("DOMContentLoaded", () => {
         hd.type === type ? "active" : ""
       }" data-hd-type-change="${type}">${type}</button>`;
     });
-
-    let hitDiceHTML = `<h4>Dadi Vita</h4>
-            <div class="view-item">
-                <div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div>
-                <div class="tracker-grid">`;
-    hd.diceStates.forEach((isUsed, index) => {
-      hitDiceHTML += `<span class="hit-dice-icon ${
-        isUsed ? "used" : ""
-      }" data-type="hd" data-index="${index}">❤️</span>`;
-    });
-    hitDiceHTML += `</div></div>`;
-    hitDiceHTML += `<div class="edit-item edit-item-controls">
-                <div class="control-group"><label>Num. Dadi</label><div>
+    editContent.innerHTML = `
+            <div class="control-group">
+                <label>Num. Dadi</label>
+                <div>
                     <button class="btn btn-small" data-hd-total-change="-1">-</button>
                     <span style="padding: 0 10px; font-weight: bold;">${hd.total}</span>
                     <button class="btn btn-small" data-hd-total-change="1">+</button>
-                </div></div>
-                <div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieButtonsHTML}</div></div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Tipo Dado</label>
+                <div class="die-type-buttons">${dieButtonsHTML}</div>
             </div>`;
-    document.getElementById("hit-dice-box").innerHTML = hitDiceHTML;
+    hitDiceBox.appendChild(editContent);
 
+    // --- DEATH SAVES (invariato ma verificato) ---
     let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
     const deathSaves = [
       ["Successi", "success"],
@@ -213,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("death-saves-box").innerHTML = dsHTML;
   }
 
+  // --- FUNZIONE DI INTERAZIONE (Modificata) ---
   function handleInteraction(e) {
     const target = e.target;
     if (target.matches(".add-btn")) {
@@ -242,12 +259,15 @@ document.addEventListener("DOMContentLoaded", () => {
       list.splice(index, 1);
       renderSheet();
     }
+
+    // Logica corretta per i cuori dei Dadi Vita
     if (target.matches(".hit-dice-icon")) {
       const index = parseInt(target.dataset.index, 10);
       characterData.hitDice.diceStates[index] =
         !characterData.hitDice.diceStates[index];
       renderCombatStats();
     }
+
     if (isEditMode && target.matches("[data-hd-total-change]")) {
       const change = parseInt(target.dataset.hdTotalChange, 10);
       const newTotal = Math.max(0, characterData.hitDice.total + change);
@@ -262,6 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
       characterData.hitDice.type = target.dataset.hdTypeChange;
       renderCombatStats();
     }
+
     if (target.matches('.tracker-dot[data-type="spell"]')) {
       const level = target.dataset.level;
       const index = parseInt(target.dataset.index, 10);
@@ -297,6 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // --- IL RESTO DELLO SCRIPT RIMANE INVARIATO ---
   function saveData() {
     document.querySelectorAll("[data-path]").forEach((el) => {
       const path = el.dataset.path.split(".");
@@ -304,7 +326,8 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 0; i < path.length - 1; i++) {
         obj = obj[path[i]];
       }
-      if (path[0] === "hitDice") return; // I Dadi Vita vengono gestiti solo con i bottoni e la loro modifica è già in characterData
+      // Escludo i dati dei Dadi Vita perché li gestiamo solo con i bottoni e sono già aggiornati.
+      if (path[0] === "hitDice") return;
       const value =
         el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
       obj[path[path.length - 1]] = value;
@@ -325,7 +348,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => feedback.classList.remove("visible"), 2000);
   }
 
-  // Le funzioni da qui in poi sono complete e non necessitano modifiche per questa richiesta
   function renderHeader() {
     const d = characterData;
     document.getElementById(
@@ -520,17 +542,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderAbilities();
     }
     if (e.target.matches('[data-type^="ds-"]')) {
-      const type =
-        e.target.dataset.type === "ds-success" ? "successes" : "failures";
-      let count = 0;
-      document
-        .querySelectorAll(
-          `[data-type="ds-${
-            type === "successes" ? "success" : "failure"
-          }"]:checked`
-        )
-        .forEach(() => count++);
-      characterData.deathSaves[type] = count;
+      handleInteraction(e);
     }
   });
   document.body.addEventListener("input", (e) => {
