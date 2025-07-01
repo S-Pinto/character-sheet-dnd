@@ -282,16 +282,6 @@ body {
   align-items: center;
   justify-content: center;
 }
-.tracker-dot,
-.potion-icon {
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.potion-icon.used {
-  opacity: 0.3;
-  filter: grayscale(100%);
-}
 .death-save {
   display: flex;
   flex-direction: column;
@@ -299,8 +289,6 @@ body {
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
-
-/* --- Stili Corretti Tiri Salvezza vs Morte --- */
 .skull-icon {
   font-size: 1.8rem;
   cursor: pointer;
@@ -314,13 +302,48 @@ body {
 .skull-icon.toggled.success {
   opacity: 1;
   color: var(--c-success);
+  text-shadow: 0 0 10px var(--c-success);
 }
 .skull-icon.toggled.failure {
   opacity: 1;
   color: var(--c-danger);
+  text-shadow: 0 0 10px var(--c-danger);
 }
-/* --- Fine Stili Corretti --- */
-
+#hit-dice-box .edit-item-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.control-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.die-type-buttons button {
+  flex-grow: 1;
+  background-color: var(--c-surface-light);
+  border: 1px solid var(--c-secondary);
+  color: var(--c-secondary);
+}
+.die-type-buttons button.active {
+  background-color: var(--c-secondary);
+  color: white;
+}
+.hit-dice-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--c-secondary);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top: none;
+  cursor: pointer;
+}
+.hit-dice-icon.used {
+  background: var(--c-secondary);
+}
 #attacks-container {
   display: flex;
   flex-direction: column;
