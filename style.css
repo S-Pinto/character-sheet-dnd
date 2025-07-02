@@ -390,16 +390,6 @@ body {
   padding: 0;
   margin: 0;
 }
-.item-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--c-border);
-}
-.item-list li:last-child {
-  border-bottom: none;
-}
 #coin-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
@@ -450,9 +440,54 @@ body {
 #personality-box div {
   margin-bottom: 1rem;
 }
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  background-color: #2c3e50;
+  color: var(--c-text);
+  border: 1px solid var(--c-secondary);
+  border-radius: 4px;
+  padding: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--c-primary);
+}
+.view-item {
+  display: inline-block;
+}
+.edit-item {
+  display: none;
+}
+.view-mode .edit-item {
+  display: none;
+}
+.edit-mode .view-item {
+  display: none;
+}
+.edit-mode .edit-item {
+  display: block;
+}
+.view-mode .skill-prof {
+  display: none;
+}
+#save-feedback {
+  color: var(--c-success);
+  font-weight: bold;
+  margin-right: 1rem;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+#save-feedback.visible {
+  opacity: 1;
+}
+/* --- NUOVI STILI SEZIONE INCANTESIMI --- */
 #spells-section-container {
   background-color: var(--c-surface);
-  margin-top: 1.5rem;
 }
 .spells-header {
   display: flex;
@@ -509,8 +544,7 @@ body {
 .spell-slot-row .slot-label {
   font-size: 1.2rem;
   font-weight: bold;
-  flex-basis: 200px;
-  flex-shrink: 0;
+  flex-grow: 1;
 }
 .tracker-dot {
   width: 20px;
@@ -595,8 +629,11 @@ body {
 .spell-details-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 1rem;
+}
+.spell-detail {
+  text-align: center;
 }
 .spell-detail h5 {
   margin: 0 0 0.25rem 0;
@@ -609,61 +646,29 @@ body {
 .spell-detail textarea {
   margin: 0;
   color: white;
-  font-size: 0.9em;
+  font-family: var(--font-serif);
+  font-size: 1.1em;
 }
 .spell-card .delete-btn {
   top: 1rem;
   right: 1rem;
 }
 .spell-card-body .edit-item {
-  background-color: var(--c-bg);
-  color: var(--c-text);
+  background-color: var(--c-bg) !important;
+  color: var(--c-text) !important;
 }
-input[type="text"],
-input[type="number"],
-select,
-textarea {
-  background-color: #2c3e50;
-  color: var(--c-text);
-  border: 1px solid var(--c-secondary);
-  border-radius: 4px;
-  padding: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
+.prepared-toggle {
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.4;
+  user-select: none;
 }
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid var(--c-primary);
-}
-.view-item {
-  display: inline-block;
-}
-.edit-item {
-  display: none;
-}
-.view-mode .edit-item {
-  display: none;
-}
-.edit-mode .view-item {
-  display: none;
-}
-.edit-mode .edit-item {
-  display: block;
-}
-.view-mode .skill-prof {
-  display: none;
-}
-#save-feedback {
-  color: var(--c-success);
-  font-weight: bold;
-  margin-right: 1rem;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-#save-feedback.visible {
+.prepared-toggle.prepared {
   opacity: 1;
+  color: var(--c-secondary);
+  text-shadow: 0 0 8px var(--c-secondary);
 }
+/* --- FINE NUOVI STILI --- */
 @media (max-width: 1400px) {
   #main-content-grid {
     grid-template-columns: 1fr 1fr;

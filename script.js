@@ -390,34 +390,74 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function renderSpells() {
     const s = characterData.spells;
+    const container = document.getElementById("spells-section-container");
     const spellModifierValue =
       s.spellModifier >= 0 ? `+${s.spellModifier}` : s.spellModifier;
-    let h = `<h2>Incantesimi</h2><div class="spells-header"><div class="spell-main-stats"><div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${s.ability}</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${s.ability}"></div><div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${spellModifierValue}</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${s.spellModifier}"></div><div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${s.saveDC}</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${s.saveDC}"></div><div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${s.attackBonus}</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${s.attackBonus}"></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;"><h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button></div><div id="spell-slots-container"></div><button class="add-btn edit-item" data-type="spells.slots">+</button><h4 style="margin-top:1.5rem;">Contatori Speciali</h4><div id="custom-trackers-container"></div><button class="add-btn edit-item" data-type="spells.customTrackers">+</button><h4 style="margin-top:1.5rem;">Lista Incantesimi</h4><div id="spell-filters"></div><div id="spell-card-list"></div><button class="add-btn edit-item" data-type="spells.list">+</button>`;
-    document.getElementById("spells-section-container").innerHTML = h;
+
+    let headerHTML = `<h2>Incantesimi</h2>
+        <div class="spells-header">
+            <div class="spell-main-stats">
+                <div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${s.ability}</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${s.ability}"></div>
+                <div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${spellModifierValue}</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${s.spellModifier}"></div>
+                <div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${s.saveDC}</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${s.saveDC}"></div>
+                <div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${s.attackBonus}</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${s.attackBonus}"></div>
+            </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 1rem;">
+            <h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button>
+        </div>
+        <div id="spell-slots-container"></div>
+        <button class="add-btn edit-item" data-type="spells.slots">+ Aggiungi Livello Slot</button>
+        <h4 style="margin-top: 1.5rem;">Contatori Speciali</h4>
+        <div id="custom-trackers-container"></div>
+        <button class="add-btn edit-item" data-type="spells.customTrackers">+ Aggiungi Contatore</button>
+        <h4 style="margin-top: 1.5rem;">Lista Incantesimi</h4>
+        <div id="spell-filters"></div>
+        <div id="spell-card-list"></div>
+        <button class="add-btn edit-item" data-type="spells.list">+ Aggiungi Incantesimo</button>`;
+    container.innerHTML = headerHTML;
+
     const slotsContainer = document.getElementById("spell-slots-container");
     slotsContainer.innerHTML = "";
-    Object.entries(s.slots).forEach(([lvl, data]) => {
-      let slotHTML = `<div class="spell-slot-row"><strong class="slot-label">Livello ${lvl}</strong><div class="edit-item" style="display:flex;align-items:center;gap:0.5rem;"><button class="btn btn-small" data-slot-change="${lvl}" data-amount="-1">-</button><span>${data.total}</span><button class="btn btn-small" data-slot-change="${lvl}" data-amount="1">+</button></div><div class="tracker-grid">`;
-      for (let i = 0; i < data.total; i++)
-        slotHTML += `<div class="tracker-dot ${
-          i < data.used ? "used" : ""
-        }" data-type="spell" data-level="${lvl}"></div>`;
-      slotsContainer.innerHTML += slotHTML + `</div></div>`;
-    });
+    Object.entries(s.slots)
+      .sort((a, b) => a[0] - b[0])
+      .forEach(([level, data]) => {
+        let slotHTML = `<div class="spell-slot-row">
+            <strong class="slot-label">Livello ${level}</strong>
+            <div class="edit-item" style="display:flex; align-items:center; gap:0.5rem;">
+                <button class="btn btn-small" data-slot-change="${level}" data-amount="-1">-</button>
+                <span>${data.total}</span>
+                <button class="btn btn-small" data-slot-change="${level}" data-amount="1">+</button>
+            </div>
+            <div class="tracker-grid">`;
+        for (let i = 0; i < data.total; i++)
+          slotHTML += `<div class="tracker-dot ${
+            i < data.used ? "used" : ""
+          }" data-type="spell" data-level="${level}"></div>`;
+        slotsContainer.innerHTML += slotHTML + `</div></div>`;
+      });
+
     const customTrackersContainer = document.getElementById(
       "custom-trackers-container"
     );
     customTrackersContainer.innerHTML = "";
     s.customTrackers.forEach((tracker, index) => {
-      let trackerHTML = `<div class="spell-slot-row"><div class="slot-label view-item">${tracker.name}</div><input class="slot-label edit-item" data-path="spells.customTrackers.${index}.name" value="${tracker.name}"><div class="edit-item" style="display:flex;align-items:center;gap:0.5rem;"><button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="-1">-</button><span>${tracker.max}</span><button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="1">+</button></div><div class="tracker-grid">`;
+      let trackerHTML = `<div class="spell-slot-row">
+            <div class="slot-label view-item">${tracker.name}</div>
+            <input class="slot-label edit-item" data-path="spells.customTrackers.${index}.name" value="${tracker.name}">
+            <div class="edit-item" style="display:flex; align-items:center; gap:0.5rem;">
+                <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="-1">-</button>
+                <span>${tracker.max}</span>
+                <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="1">+</button>
+            </div>
+            <div class="tracker-grid">`;
       for (let i = 0; i < tracker.max; i++)
         trackerHTML += `<div class="tracker-dot ${
           i < tracker.used ? "used" : ""
         }" data-type="custom" data-index="${index}"></div>`;
-      customTrackersContainer.innerHTML +=
-        trackerHTML +
-        `</div><div class="edit-item" style="text-align:right;"><button class="delete-btn" data-type="spells.customTrackers" data-index="${index}">X</button></div></div>`;
+      customTrackersContainer.innerHTML += `<div>${trackerHTML}</div><button class="delete-btn edit-item" data-type="spells.customTrackers" data-index="${index}">X</button></div>`;
     });
+
     const filtersContainer = document.getElementById("spell-filters");
     const levels = [...new Set(s.list.map((spell) => spell.level))].sort(
       (a, b) => a - b
@@ -435,6 +475,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }</button>`;
     });
     filtersContainer.innerHTML = filtersHTML;
+
     const cardListContainer = document.getElementById("spell-card-list");
     cardListContainer.innerHTML = "";
     s.list
@@ -458,35 +499,53 @@ document.addEventListener("DOMContentLoaded", () => {
           spell.isConcentration ? '<span class="spell-tag">C</span>' : ""
         }${
           spell.isRitual ? '<span class="spell-tag">R</span>' : ""
-        }</div><input type="checkbox" data-prepare-index="${originalIndex}" ${
-          spell.prepared ? "checked" : ""
-        } title="Preparato"></div><div class="spell-card-body"><h5>${
-          spell.school
-        }</h5><div class="spell-details-grid"><div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
+        }</div></div><div class="spell-card-body">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div class="spell-details-grid">
+                    <div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
+                      spell.castingTime
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
           spell.castingTime
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
-          spell.castingTime
-        }"></div><div class="spell-detail"><label>Gittata</label><p class="view-item">${
+        }"></div>
+                    <div class="spell-detail"><label>Gittata</label><p class="view-item">${
+                      spell.range
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
           spell.range
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
-          spell.range
-        }"></div><div class="spell-detail"><label>Durata</label><p class="view-item">${
+        }"></div>
+                    <div class="spell-detail"><label>Durata</label><p class="view-item">${
+                      spell.duration
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
           spell.duration
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
-          spell.duration
-        }"></div><div class="spell-detail"><label>Componenti</label><p class="view-item">${
+        }"></div>
+                    <div class="spell-detail"><label>Componenti</label><p class="view-item">${
+                      spell.components
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
           spell.components
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
-          spell.components
-        }"></div></div><label>Descrizione</label><p class="view-item">${spell.description.replace(
-          /\n/g,
-          "<br>"
-        )}</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
+        }"></div>
+                </div>
+                <div class="spell-detail">
+                    <label>Preparato</label>
+                    <span class="prepared-toggle view-item ${
+                      spell.prepared ? "prepared" : ""
+                    }" data-prepare-index="${originalIndex}" title="Preparato">📖</span>
+                    <span class="prepared-toggle edit-item ${
+                      spell.prepared ? "prepared" : ""
+                    }" data-prepare-index="${originalIndex}" title="Preparato">📖</span>
+                </div>
+            </div>
+            <label>Descrizione</label><p class="view-item">${spell.description.replace(
+              /\n/g,
+              "<br>"
+            )}</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
           spell.description
-        }</textarea><button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button></div></div>`;
+        }</textarea>
+            <button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button>
+        </div></div>`;
         cardListContainer.innerHTML += cardHTML;
       });
   }
+  // --- BLOCCO 3: LOGICA INTERATTIVA ---
+
   function handleInteraction(e) {
     const target = e.target;
     if (target.matches(".add-btn")) {
@@ -598,6 +657,31 @@ document.addEventListener("DOMContentLoaded", () => {
         renderSpells();
       }
     }
+    if (target.matches('.tracker-dot[data-type="spell"]')) {
+      const level = target.dataset.level;
+      const slots = characterData.spells.slots[level];
+      if (slots.used < slots.total) {
+        slots.used++;
+      } else {
+        slots.used = 0;
+      }
+      renderSpells();
+    }
+    if (target.closest(".spell-card-header")) {
+      target.closest(".spell-card").classList.toggle("expanded");
+    }
+    if (target.matches(".filter-btn")) {
+      spellFilter = target.dataset.filter;
+      renderSpells();
+    }
+    if (target.matches(".prepared-toggle")) {
+      // Logica per l'icona del libro
+      const index = parseInt(target.dataset.prepareIndex, 10);
+      characterData.spells.list[index].prepared =
+        !characterData.spells.list[index].prepared;
+      renderSpells();
+    }
+    // ... (resto della logica handleInteraction)
     if (target.matches(".hit-dice-icon")) {
       const index = parseInt(target.dataset.index, 10);
       characterData.hitDice.diceStates[index] =
@@ -617,27 +701,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isEditMode && target.matches("[data-hd-type-change]")) {
       characterData.hitDice.type = target.dataset.hdTypeChange;
       renderCombatStats();
-    }
-    if (target.matches('.tracker-dot[data-type="spell"]')) {
-      const level = target.dataset.level;
-      const slots = characterData.spells.slots[level];
-      if (slots.used < slots.total) {
-        slots.used++;
-      } else {
-        slots.used = 0;
-      }
-      renderSpells();
-    }
-    if (
-      target.closest(".spell-card-header") &&
-      !e.target.matches("input") &&
-      !e.target.matches(".delete-btn")
-    ) {
-      target.closest(".spell-card").classList.toggle("expanded");
-    }
-    if (target.matches(".filter-btn")) {
-      spellFilter = target.dataset.filter;
-      renderSpells();
     }
     if (target.matches('[data-hp-type="temp"]')) {
       const amount = parseInt(target.dataset.amount, 10);
@@ -664,6 +727,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderCombatStats();
     }
   }
+  // --- BLOCCO 4: GESTIONE STATO E SALVATAGGIO ---
+
   function toggleEditMode() {
     isEditMode = !isEditMode;
     document.body.classList.toggle("edit-mode", isEditMode);
@@ -673,6 +738,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.classList.toggle("save-btn", isEditMode);
     renderSheet();
   }
+
   function saveData() {
     document.querySelectorAll("[data-path]").forEach((el) => {
       const path = el.dataset.path.split(".");
@@ -680,14 +746,21 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 0; i < path.length - 1; i++) {
         obj = obj[path[i]];
       }
+      // Escludiamo i dati gestiti solo da bottoni
+      if (path[0] === "hitDice") return;
       if (
-        path[0] === "hitDice" ||
-        (path[0] === "spells" &&
-          path[1] === "customTrackers" &&
-          path.length > 2) ||
-        (path[0] === "spells" && path[1] === "slots")
-      )
+        path[0] === "spells" &&
+        path[1] === "customTrackers" &&
+        path.length > 2
+      ) {
+        const index = parseInt(path[2], 10);
+        if (characterData.spells.customTrackers[index]) {
+          characterData.spells.customTrackers[index].name = el.value;
+        }
         return;
+      }
+      if (path[0] === "spells" && path[1] === "slots") return;
+
       const value =
         el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
       obj[path[path.length - 1]] = value;
@@ -701,20 +774,15 @@ document.addEventListener("DOMContentLoaded", () => {
         characterData.skills[key].proficient = el.checked;
       }
     });
-    characterData.spells.list.forEach((spell, index) => {
-      const prepCheckbox = document.querySelector(
-        `[data-prepare-index="${index}"]`
-      );
-      if (prepCheckbox) {
-        spell.prepared = prepCheckbox.checked;
-      }
-    });
+
+    // Lo stato 'prepared' viene già aggiornato al click, quindi il salvataggio è implicito
     localStorage.setItem("dndCharacterSheet", JSON.stringify(characterData));
     const feedback = document.getElementById("save-feedback");
     feedback.textContent = "Salvato!";
     feedback.classList.add("visible");
     setTimeout(() => feedback.classList.remove("visible"), 2000);
   }
+
   function loadData() {
     const savedData = localStorage.getItem("dndCharacterSheet");
     if (savedData) {
@@ -749,6 +817,7 @@ document.addEventListener("DOMContentLoaded", () => {
       characterData = merge(characterData, loadedData);
     }
   }
+
   loadData();
   renderSheet();
   document.body.classList.add("view-mode");
