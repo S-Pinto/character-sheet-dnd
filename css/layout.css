@@ -1,0 +1,144 @@
+#main-header-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+#header-info-container {
+  display: flex;
+  flex-direction: column;
+}
+#name-and-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+#details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  background: var(--c-surface);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+}
+#key-stats-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+#main-content-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1.3fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+#abilities-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.main-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+#hp-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+.hp-max-temp-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+}
+.resources-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+#spells-section-container {
+  margin-top: 1.5rem;
+}
+.spells-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.spell-main-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+#spell-slots-container,
+#custom-trackers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.spell-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--c-surface-light);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+}
+.spell-body-main-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
+}
+.spell-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+@media (max-width: 1400px) {
+  #main-content-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  #column-left {
+    grid-column: 1 / -1;
+  }
+  #abilities-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 768px) {
+  body {
+    padding: 0.5rem;
+  }
+  #main-header-grid,
+  #abilities-container,
+  #main-content-grid,
+  #key-stats-container,
+  #main-content-grid > div {
+    grid-template-columns: 1fr;
+  }
+  #main-header-grid {
+    text-align: center;
+  }
+  #name-and-controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  #character-name-display {
+    font-size: 3rem;
+  }
+  .spell-main-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}

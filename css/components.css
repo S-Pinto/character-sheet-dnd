@@ -1,0 +1,368 @@
+#portrait-container img {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 3px solid var(--c-primary);
+}
+#character-name-display {
+  font-family: var(--font-header);
+  font-size: 4rem;
+  color: var(--c-text);
+  margin: 0;
+  text-shadow: 0 0 10px var(--c-primary);
+}
+.btn {
+  background-color: var(--c-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.btn.save-btn {
+  background-color: var(--c-success);
+}
+.btn-small {
+  padding: 0.25rem 0.75rem;
+  font-size: 1rem;
+  margin: 0 0.25rem;
+}
+.detail-box {
+  text-align: left;
+  background: var(--c-surface-light);
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+.detail-box label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--c-label);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.detail-box .view-item,
+.detail-box .edit-item {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+}
+.key-stat-box {
+  background: var(--c-surface);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.key-stat-box .stat-label,
+.stat-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--c-label);
+}
+.key-stat-box .stat-value,
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+  display: block;
+}
+.ability-box {
+  background: var(--c-surface-light);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+}
+.ability-header {
+  text-align: center;
+  border-bottom: 1px solid var(--c-border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+.ability-box h3 {
+  font-family: var(--font-header);
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--c-secondary);
+}
+.ability-score {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+}
+.ability-modifier {
+  font-size: 1.2rem;
+  color: var(--c-label);
+}
+.skill-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.skill-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9em;
+}
+.skill-list .prof-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--c-secondary);
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+.skill-list .prof-dot.proficient {
+  background-color: var(--c-secondary);
+}
+.skill-list .skill-name {
+  flex-grow: 1;
+}
+.skill-list li strong {
+  color: white;
+}
+.hp-current-side .current-hp-value {
+  font-size: 4.5rem;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--c-success);
+}
+.hp-sub-box {
+  background-color: var(--c-surface-light);
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+}
+.hit-dice-icon {
+  font-size: 1.8rem;
+  color: var(--c-danger);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+.hit-dice-icon:hover {
+  transform: scale(1.15);
+}
+.hit-dice-icon.used {
+  opacity: 0.3;
+  filter: grayscale(100%);
+  text-shadow: none;
+}
+.skull-icon {
+  font-size: 1.8rem;
+  cursor: pointer;
+  opacity: 0.3;
+  color: var(--c-label);
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+.skull-icon:hover {
+  transform: scale(1.1);
+}
+.skull-icon.toggled.success {
+  opacity: 1;
+  color: var(--c-success);
+  text-shadow: 0 0 10px var(--c-success);
+}
+.skull-icon.toggled.failure {
+  opacity: 1;
+  color: var(--c-danger);
+  text-shadow: 0 0 10px var(--c-danger);
+}
+.die-type-buttons button {
+  flex-grow: 1;
+  background-color: var(--c-surface-light);
+  border: 1px solid var(--c-secondary);
+  color: var(--c-secondary);
+  padding: 0.5rem;
+}
+.die-type-buttons button.active {
+  background-color: var(--c-secondary);
+  color: white;
+}
+.attack-card {
+  border: 1px solid var(--c-border);
+  border-left: 5px solid var(--c-danger);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  background-color: var(--c-surface-light);
+  position: relative;
+}
+#attacks-box .attack-card h4 {
+  color: var(--c-danger);
+}
+.attack-card h4 {
+  font-family: var(--font-header);
+  font-size: 1.8rem;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 1px;
+}
+.attack-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+.attack-notes {
+  font-size: 0.9em;
+  font-style: italic;
+  color: var(--c-label);
+}
+.add-btn {
+  background-color: var(--c-secondary);
+  color: white;
+  border-radius: 4px;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  align-self: flex-start;
+}
+.delete-btn {
+  background-color: var(--c-danger);
+  color: white;
+  border-radius: 50%;
+  border: none;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+.feature-item h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--c-secondary);
+}
+.spell-main-stats .stat-box label {
+  order: 1;
+  margin-bottom: 0.5rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--c-label);
+}
+.spell-main-stats .stat-box .view-item,
+.spell-main-stats .stat-box .edit-item {
+  order: 2;
+  font-size: 2.2rem;
+  font-weight: bold;
+  line-height: 1;
+  color: white;
+  font-family: var(--font-serif);
+}
+.slot-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  flex-grow: 1;
+}
+.slot-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tracker-dot {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--c-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.tracker-dot.used {
+  background: var(--c-primary);
+}
+.filter-btn {
+  background-color: var(--c-surface-light);
+  border: 1px solid var(--c-border);
+  color: var(--c-label);
+}
+.filter-btn.active {
+  background-color: var(--c-secondary);
+  color: white;
+  border-color: var(--c-secondary);
+}
+.spell-card {
+  background: var(--c-surface-light);
+  border: 1px solid var(--c-border);
+  border-left: 5px solid var(--c-primary);
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+.spell-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  cursor: pointer;
+  position: relative;
+}
+.spell-name {
+  font-family: var(--font-header);
+  font-size: 1.5rem;
+  flex-grow: 1;
+}
+.spell-level {
+  background: var(--c-secondary);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.spell-tag {
+  background: #111;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.8em;
+}
+.spell-card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+  padding: 0 1.5rem;
+}
+.spell-card.expanded .spell-card-body {
+  max-height: 600px;
+  padding: 1.5rem;
+  border-top: 1px solid var(--c-border);
+}
+.spell-detail {
+  text-align: center;
+}
+.spell-detail label {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  color: var(--c-label);
+}
+.spell-detail .view-item,
+.spell-detail .edit-item {
+  font-family: var(--font-serif);
+  font-size: 1.1em;
+  color: white;
+  margin-top: 0.25rem;
+}
+.spell-card-body .edit-item {
+  background-color: var(--c-bg) !important;
+  color: var(--c-text) !important;
+}
+.prepared-toggle {
+  font-size: 1.8rem;
+  cursor: pointer;
+  opacity: 0.4;
+  user-select: none;
+  transition: all 0.2s;
+}
+.prepared-toggle.prepared {
+  opacity: 1;
+  color: var(--c-secondary);
+  text-shadow: 0 0 8px var(--c-secondary);
+}

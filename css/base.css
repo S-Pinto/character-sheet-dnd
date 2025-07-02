@@ -1,0 +1,92 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap");
+:root {
+  --font-header: "Cinzel", serif;
+  --font-body: "Lato", sans-serif;
+  --c-bg: #1a1a2e;
+  --c-surface: #16213e;
+  --c-surface-light: #2c3e50;
+  --c-text: #e0e0e0;
+  --c-label: #a7a7a7;
+  --c-primary: #9b59b6;
+  --c-secondary: #3498db;
+  --c-success: #2ecc71;
+  --c-danger: #e74c3c;
+  --c-border: #0f3460;
+  --border-radius: 8px;
+  --shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+body {
+  font-family: var(--font-body);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  margin: 0;
+  padding: 1.5rem;
+}
+.container {
+  max-width: 1600px;
+  margin: auto;
+}
+.box {
+  background-color: var(--c-surface);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+}
+.box h2,
+.box h3,
+.box h4 {
+  font-family: var(--font-serif);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--c-primary);
+  border-bottom: 2px solid var(--c-border);
+  padding-bottom: 0.5rem;
+}
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  background-color: #2c3e50;
+  color: var(--c-text);
+  border: 1px solid var(--c-secondary);
+  border-radius: 4px;
+  padding: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--c-primary);
+}
+.view-item {
+  display: inline-block;
+}
+.edit-item {
+  display: none;
+}
+.view-mode .edit-item {
+  display: none;
+}
+.edit-mode .view-item {
+  display: none;
+}
+.edit-mode .edit-item {
+  display: block;
+}
+.view-mode .skill-prof {
+  display: none;
+}
+#save-feedback {
+  color: var(--c-success);
+  font-weight: bold;
+  margin-right: 1rem;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+#save-feedback.visible {
+  opacity: 1;
+}
