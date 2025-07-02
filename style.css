@@ -450,54 +450,9 @@ body {
 #personality-box div {
   margin-bottom: 1rem;
 }
-input[type="text"],
-input[type="number"],
-select,
-textarea {
-  background-color: #2c3e50;
-  color: var(--c-text);
-  border: 1px solid var(--c-secondary);
-  border-radius: 4px;
-  padding: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid var(--c-primary);
-}
-.view-item {
-  display: inline-block;
-}
-.edit-item {
-  display: none;
-}
-.view-mode .edit-item {
-  display: none;
-}
-.edit-mode .view-item {
-  display: none;
-}
-.edit-mode .edit-item {
-  display: block;
-}
-.view-mode .skill-prof {
-  display: none;
-}
-#save-feedback {
-  color: var(--c-success);
-  font-weight: bold;
-  margin-right: 1rem;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-#save-feedback.visible {
-  opacity: 1;
-}
-/* --- NUOVI STILI SEZIONE INCANTESIMI --- */
 #spells-section-container {
   background-color: var(--c-surface);
+  margin-top: 1.5rem;
 }
 .spells-header {
   display: flex;
@@ -663,8 +618,52 @@ select:focus {
 .spell-card-body .edit-item {
   background-color: var(--c-bg);
   color: var(--c-text);
-} /* Fix per il testo bianco su bianco */
-/* --- FINE NUOVI STILI --- */
+}
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  background-color: #2c3e50;
+  color: var(--c-text);
+  border: 1px solid var(--c-secondary);
+  border-radius: 4px;
+  padding: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--c-primary);
+}
+.view-item {
+  display: inline-block;
+}
+.edit-item {
+  display: none;
+}
+.view-mode .edit-item {
+  display: none;
+}
+.edit-mode .view-item {
+  display: none;
+}
+.edit-mode .edit-item {
+  display: block;
+}
+.view-mode .skill-prof {
+  display: none;
+}
+#save-feedback {
+  color: var(--c-success);
+  font-weight: bold;
+  margin-right: 1rem;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+#save-feedback.visible {
+  opacity: 1;
+}
 @media (max-width: 1400px) {
   #main-content-grid {
     grid-template-columns: 1fr 1fr;
