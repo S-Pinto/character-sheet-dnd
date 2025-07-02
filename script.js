@@ -1,3 +1,5 @@
+// --- BLOCCO 1: DATI E COSTANTI ---
+
 document.addEventListener("DOMContentLoaded", () => {
   let characterData = {
     name: "Valenor Lightbringer",
@@ -188,6 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let isEditMode = false;
   let spellFilter = "all";
 
+  // --- BLOCCO 2: FUNZIONI DI RENDER ---
+
   function renderSheet() {
     renderHeader();
     renderKeyStats();
@@ -201,6 +205,64 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSpells();
   }
 
+  function renderHeader() {
+    const d = characterData;
+    document.getElementById(
+      "portrait-container"
+    ).innerHTML = `<div class="view-item"><img id="portrait-img" src="${d.imageUrl}" alt="Ritratto" onerror="this.style.display='none'"></div><div class="edit-item"><img src="${d.imageUrl}" alt="Ritratto" onerror="this.style.display='none'"><label>URL o nome file</label><input type="text" data-path="imageUrl" value="${d.imageUrl}"></div>`;
+    document.getElementById(
+      "character-name-display"
+    ).innerHTML = `<span class="view-item">${d.name}</span><input type="text" class="edit-item" data-path="name" value="${d.name}">`;
+    document.getElementById(
+      "details-grid"
+    ).innerHTML = `<div class="detail-box"><label>Classe & Multiclasse</label><div class="view-item">${d.class}</div><input type="text" class="edit-item" data-path="class" value="${d.class}"></div><div class="detail-box"><label>Specie</label><div class="view-item">${d.race}</div><input type="text" class="edit-item" data-path="race" value="${d.race}"></div><div class="detail-box"><label>Background</label><div class="view-item">${d.background}</div><input type="text" class="edit-item" data-path="background" value="${d.background}"></div><div class="detail-box"><label>Allineamento</label><div class="view-item">${d.alignment}</div><input type="text" class="edit-item" data-path="alignment" value="${d.alignment}"></div>`;
+  }
+  function renderKeyStats() {
+    document.getElementById(
+      "key-stats-container"
+    ).innerHTML = `<div class="key-stat-box"><span class="stat-label">Livello Personaggio</span><span class="stat-value view-item">${characterData.level}</span><input class="stat-value edit-item" type="number" data-path="level" value="${characterData.level}"></div><div class="key-stat-box"><span class="stat-label">Bonus Competenza</span><span class="stat-value view-item">+${characterData.proficiencyBonus}</span><input class="stat-value edit-item" type="number" data-path="proficiencyBonus" value="${characterData.proficiencyBonus}"></div>`;
+  }
+  function renderAbilities() {
+    const container = document.getElementById("abilities-container");
+    container.innerHTML = "";
+    Object.keys(characterData.abilities).forEach((key) => {
+      const score = characterData.abilities[key];
+      const modifier = Math.floor((score - 10) / 2);
+      const isSavingThrowProficient = characterData.savingThrows[key];
+      const savingThrowBonus =
+        modifier +
+        (isSavingThrowProficient ? characterData.proficiencyBonus : 0);
+      let skillsHTML = '<ul class="skill-list">';
+      skillsHTML += `<li style="font-weight: bold; border-bottom: 1px solid var(--c-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem;"><span class="prof-dot view-item ${
+        isSavingThrowProficient ? "proficient" : ""
+      }"></span><input type="checkbox" class="skill-prof edit-item" data-type="save" data-skill="${key}" ${
+        isSavingThrowProficient ? "checked" : ""
+      }><span class="skill-name">Tiro Salvezza</span><strong>${
+        savingThrowBonus >= 0 ? "+" : ""
+      }${savingThrowBonus}</strong></li>`;
+      if (SKILL_MAP[key]) {
+        SKILL_MAP[key].forEach((skillKey) => {
+          const isProficient =
+            characterData.skills[skillKey]?.proficient || false;
+          const skillBonus =
+            modifier + (isProficient ? characterData.proficiencyBonus : 0);
+          skillsHTML += `<li><span class="prof-dot view-item ${
+            isProficient ? "proficient" : ""
+          }"></span><input type="checkbox" class="skill-prof edit-item" data-type="skill" data-skill="${skillKey}" ${
+            isProficient ? "checked" : ""
+          }><span class="skill-name">${
+            skillKey.charAt(0).toUpperCase() + skillKey.slice(1)
+          }</span><strong>${
+            skillBonus >= 0 ? "+" : ""
+          }${skillBonus}</strong></li>`;
+        });
+      }
+      skillsHTML += "</ul>";
+      container.innerHTML += `<div class="ability-box"><div class="ability-header"><h3>${key.toUpperCase()}</h3><div class="ability-score view-item">${score}</div><input type="number" class="ability-score edit-item" data-path="abilities.${key}" value="${score}"><div class="ability-modifier">${
+        modifier >= 0 ? "+" : ""
+      }${modifier}</div></div>${skillsHTML}</div>`;
+    });
+  }
   function renderCombatStats() {
     const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
     document.getElementById(
@@ -217,7 +279,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById(
       "hp-box"
     ).innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
-
     const hd = characterData.hitDice;
     const hitDiceBox = document.getElementById("hit-dice-box");
     hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`;
@@ -231,7 +292,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     viewContent.innerHTML = `<div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div><div class="tracker-grid">${viewHeartsHTML}</div>`;
     hitDiceBox.appendChild(viewContent);
-
     const editContent = document.createElement("div");
     editContent.className = "edit-item edit-item-controls";
     let dieTypes = ["d6", "d8", "d10", "d12"];
@@ -243,7 +303,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     editContent.innerHTML = `<div class="control-group"><label>Num. Dadi</label><div><button class="btn btn-small" data-hd-total-change="-1">-</button><span style="padding: 0 10px; font-weight: bold;">${hd.total}</span><button class="btn btn-small" data-hd-total-change="1">+</button></div></div><div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieButtonsHTML}</div></div>`;
     hitDiceBox.appendChild(editContent);
-
     let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
     const deathSaves = [
       ["Successi", "success"],
@@ -261,6 +320,159 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.getElementById("death-saves-box").innerHTML = dsHTML;
   }
+  function renderAttacks() {
+    const c = document.getElementById("attacks-box");
+    let h = `<h2>Attacchi</h2><div id="attacks-container">`;
+    characterData.attacks.forEach((a, i) => {
+      h += `<div class="attack-card"><div class="view-item"><h4>${a.name}</h4><div class="attack-stats"><span><strong>Bonus:</strong> ${a.bonus}</span><span><strong>Danno:</strong> ${a.damage}</span></div><div class="attack-notes">${a.notes}</div></div><div class="edit-item"><input type="text" data-path="attacks.${i}.name" value="${a.name}" placeholder="Nome Attacco"><div style="display:flex;gap:1rem;margin:0.5rem 0;"><input type="text" data-path="attacks.${i}.bonus" value="${a.bonus}" placeholder="Bonus"><input type="text" data-path="attacks.${i}.damage" value="${a.damage}" placeholder="Danno"></div><textarea data-path="attacks.${i}.notes">${a.notes}</textarea><button class="delete-btn" data-type="attacks" data-index="${i}">X</button></div></div>`;
+    });
+    h += `</div><button class="add-btn edit-item" data-type="attacks">+</button>`;
+    c.innerHTML = h;
+  }
+  function renderEquipment() {
+    let h = `<h2>Equipaggiamento</h2><ul class="item-list">`;
+    characterData.equipment.forEach((item, index) => {
+      h += `<li><div class="view-item">${item.name} (${item.quantity})</div><div class="edit-item" style="display:flex;gap:5px;width:100%;"><input type="text" data-path="equipment.${index}.name" value="${item.name}" placeholder="Oggetto"><input type="number" data-path="equipment.${index}.quantity" value="${item.quantity}" style="flex-basis:70px;"><button class="delete-btn" data-type="equipment" data-index="${index}">X</button></div></li>`;
+    });
+    h += `</ul><button class="add-btn edit-item" data-type="equipment">+</button>`;
+    let c = `<div id="coin-container">`;
+    Object.keys(characterData.coins).forEach((coin) => {
+      c += `<div><span class="stat-label">${coin.toUpperCase()}</span><div class="stat-value view-item">${
+        characterData.coins[coin]
+      }</div><input type="number" class="stat-value edit-item" data-path="coins.${coin}" value="${
+        characterData.coins[coin]
+      }"></div>`;
+    });
+    document.getElementById("equipment-box").innerHTML = h + c + `</div>`;
+  }
+  function renderPersonality() {
+    const p = characterData.personality;
+    document.getElementById(
+      "personality-box"
+    ).innerHTML = `<h2>Personalità</h2><h4>Aspetto</h4><p class="view-item">${p.appearance.replace(
+      /\n/g,
+      "<br>"
+    )}</p><textarea class="edit-item" data-path="personality.appearance">${
+      p.appearance
+    }</textarea><h4>Backstory</h4><p class="view-item">${p.backstory.replace(
+      /\n/g,
+      "<br>"
+    )}</p><textarea class="edit-item" data-path="personality.backstory">${
+      p.backstory
+    }</textarea>`;
+  }
+  function renderFeatures() {
+    let h = `<h2>Talenti e Privilegi</h2>`;
+    characterData.features.forEach((f, i) => {
+      h += `<div class="feature-item"><div class="view-item"><h4>${f.name}</h4><p>${f.description}</p></div><div class="edit-item"><input type="text" data-path="features.${i}.name" value="${f.name}" placeholder="Nome Privilegio"><textarea data-path="features.${i}.description">${f.description}</textarea><button class="delete-btn" data-type="features" data-index="${i}">X</button></div></div>`;
+    });
+    h += `<button class="add-btn edit-item" data-type="features">+</button>`;
+    document.getElementById("features-box").innerHTML = h;
+  }
+  function renderProficiencies() {
+    const c = characterData.proficiencies;
+    document.getElementById(
+      "proficiencies-box"
+    ).innerHTML = `<h2>Altre Competenze</h2><h4>Armature</h4><p class="view-item">${c.armor}</p><textarea class="edit-item" data-path="proficiencies.armor">${c.armor}</textarea><h4>Armi</h4><p class="view-item">${c.weapons}</p><textarea class="edit-item" data-path="proficiencies.weapons">${c.weapons}</textarea><h4>Strumenti</h4><p class="view-item">${c.tools}</p><textarea class="edit-item" data-path="proficiencies.tools">${c.tools}</textarea><h4>Linguaggi</h4><p class="view-item">${c.languages}</p><textarea class="edit-item" data-path="proficiencies.languages">${c.languages}</textarea>`;
+  }
+  function renderSpells() {
+    const s = characterData.spells;
+    let h = `<h2>Incantesimi</h2><div class="spells-header"><div class="spell-main-stats"><div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${
+      s.ability
+    }</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${
+      s.ability
+    }"></div><div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${
+      s.spellModifier >= 0 ? "+" + s.spellModifier : s.spellModifier
+    }</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${
+      s.spellModifier
+    }"></div><div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${
+      s.saveDC
+    }</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${
+      s.saveDC
+    }"></div><div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${
+      s.attackBonus
+    }</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${
+      s.attackBonus
+    }"></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;"><h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button></div><div id="spell-slots-container" class="spell-slots-grid"></div><h4>Lista Incantesimi</h4><div id="spell-filters"></div><div id="spell-card-list"></div><button class="add-btn edit-item" data-type="spells.list">+</button>`;
+    document.getElementById("spells-section-container").innerHTML = h;
+    const slotsContainer = document.getElementById("spell-slots-container");
+    slotsContainer.innerHTML = "";
+    Object.entries(s.slots).forEach(([lvl, data]) => {
+      let slotHTML = `<div><h5>Lvl ${lvl} (${data.used}/${data.total})</h5><div class="tracker-grid">`;
+      for (let i = 0; i < data.total; i++)
+        slotHTML += `<div class="tracker-dot ${
+          i < data.used ? "used" : ""
+        }" data-type="spell" data-level="${lvl}"></div>`;
+      slotsContainer.innerHTML += slotHTML + `</div></div>`;
+    });
+    const filtersContainer = document.getElementById("spell-filters");
+    const levels = [...new Set(s.list.map((spell) => spell.level))].sort(
+      (a, b) => a - b
+    );
+    let filtersHTML = `<button class="btn btn-small filter-btn ${
+      spellFilter === "all" ? "active" : ""
+    }" data-filter="all">Tutti</button> <button class="btn btn-small filter-btn ${
+      spellFilter === "prepared" ? "active" : ""
+    }" data-filter="prepared">Preparati</button>`;
+    levels.forEach((level) => {
+      filtersHTML += `<button class="btn btn-small filter-btn ${
+        spellFilter == level ? "active" : ""
+      }" data-filter="${level}">${
+        level === 0 ? "Trucchetti" : `Lvl ${level}`
+      }</button>`;
+    });
+    filtersContainer.innerHTML = filtersHTML;
+    const cardListContainer = document.getElementById("spell-card-list");
+    cardListContainer.innerHTML = "";
+    s.list
+      .filter((spell) => {
+        if (spellFilter === "all") return true;
+        if (spellFilter === "prepared") return spell.prepared;
+        return spell.level == spellFilter;
+      })
+      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
+      .forEach((spell) => {
+        const originalIndex = s.list.findIndex((s) => s.name === spell.name);
+        let cardHTML = `<div class="spell-card"><div class="spell-card-header" data-card-index="${originalIndex}"><div class="spell-level">${
+          spell.level === 0 ? "C" : spell.level
+        }</div><div class="spell-name view-item">${
+          spell.name
+        }</div><input type="text" class="spell-name edit-item" data-path="spells.list.${originalIndex}.name" value="${
+          spell.name
+        }"><div class="spell-tags">${
+          spell.isConcentration ? '<span class="spell-tag">C</span>' : ""
+        }${
+          spell.isRitual ? '<span class="spell-tag">R</span>' : ""
+        }</div><input type="checkbox" data-prepare-index="${originalIndex}" ${
+          spell.prepared ? "checked" : ""
+        } title="Preparato"></div><div class="spell-card-body"><h5>${
+          spell.school
+        }</h5><div class="spell-details-grid"><div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
+          spell.castingTime
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
+          spell.castingTime
+        }"></div><div class="spell-detail"><label>Gittata</label><p class="view-item">${
+          spell.range
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
+          spell.range
+        }"></div><div class="spell-detail"><label>Durata</label><p class="view-item">${
+          spell.duration
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
+          spell.duration
+        }"></div><div class="spell-detail"><label>Componenti</label><p class="view-item">${
+          spell.components
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
+          spell.components
+        }"></div></div><label>Descrizione</label><p class="view-item">${
+          spell.description
+        }</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
+          spell.description
+        }</textarea><button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button></div></div>`;
+        cardListContainer.innerHTML += cardHTML;
+      });
+  }
+
+  // --- BLOCCO 3: LOGICA INTERATTIVA ---
 
   function handleInteraction(e) {
     const target = e.target;
@@ -381,6 +593,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // --- BLOCCO 4: GESTIONE STATO E SALVATAGGIO ---
+
+  function toggleEditMode() {
+    isEditMode = !isEditMode;
+    document.body.classList.toggle("edit-mode", isEditMode);
+    document.body.classList.toggle("view-mode", !isEditMode);
+    const btn = document.getElementById("edit-mode-btn");
+    btn.textContent = isEditMode ? "Salva e Blocca" : "Modifica Scheda";
+    btn.classList.toggle("save-btn", isEditMode);
+    renderSheet();
+  }
+
   function saveData() {
     document.querySelectorAll("[data-path]").forEach((el) => {
       const path = el.dataset.path.split(".");
@@ -388,8 +612,10 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 0; i < path.length - 1; i++) {
         obj = obj[path[i]];
       }
-      if (path[0] === "hitDice") return;
-      let value = el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
+      // Escludo i dati dei Dadi Vita perché li gestiamo solo con i bottoni
+      if (path[0] === "hitDice" && path.length > 1) return;
+      const value =
+        el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
       obj[path[path.length - 1]] = value;
     });
     document.querySelectorAll(".skill-prof.edit-item").forEach((el) => {
@@ -415,21 +641,12 @@ document.addEventListener("DOMContentLoaded", () => {
     feedback.classList.add("visible");
     setTimeout(() => feedback.classList.remove("visible"), 2000);
   }
-  function toggleEditMode() {
-    isEditMode = !isEditMode;
-    document.body.classList.toggle("edit-mode", isEditMode);
-    document.body.classList.toggle("view-mode", !isEditMode);
-    const btn = document.getElementById("edit-mode-btn");
-    btn.textContent = isEditMode ? "Salva e Blocca" : "Modifica Scheda";
-    btn.classList.toggle("save-btn", isEditMode);
-    renderSheet();
-  }
 
   function loadData() {
     const savedData = localStorage.getItem("dndCharacterSheet");
     if (savedData) {
       let loadedData = JSON.parse(savedData);
-      // Logica di migrazione per vecchi dati salvati
+      // Logica di migrazione per vecchi dati salvati dei dadi vita
       if (
         loadedData.hitDice &&
         loadedData.hitDice.used !== undefined &&
@@ -440,10 +657,9 @@ document.addEventListener("DOMContentLoaded", () => {
         loadedData.hitDice.diceStates = Array(totalDice)
           .fill(false)
           .map((_, i) => i < loadedData.hitDice.used);
-        delete loadedData.hitDice.used; // Rimuove la vecchia proprietà
-        delete loadedData.hitDice.size; // Rimuove la vecchia proprietà
+        delete loadedData.hitDice.used;
       }
-      // Funzione di unione profonda per non perdere nuovi campi
+      // Funzione di unione profonda per non perdere nuovi campi nel codice di default
       const merge = (target, source) => {
         for (const key of Object.keys(source)) {
           if (
@@ -463,168 +679,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function renderAttacks() {
-    const c = document.getElementById("attacks-box");
-    let h = `<h2>Attacchi</h2><div id="attacks-container">`;
-    characterData.attacks.forEach((a, i) => {
-      h += `<div class="attack-card"><div class="view-item"><h4>${a.name}</h4><div class="attack-stats"><span><strong>Bonus:</strong> ${a.bonus}</span><span><strong>Danno:</strong> ${a.damage}</span></div><div class="attack-notes">${a.notes}</div></div><div class="edit-item"><input type="text" data-path="attacks.${i}.name" value="${a.name}" p="Nome Attacco"><div style="display:flex;gap:1rem;margin:0.5rem 0;"><input type="text" data-path="attacks.${i}.bonus" value="${a.bonus}" p="Bonus"><input type="text" data-path="attacks.${i}.damage" value="${a.damage}" p="Danno"></div><textarea data-path="attacks.${i}.notes">${a.notes}</textarea><button class="delete-btn" data-type="attacks" data-index="${i}">X</button></div></div>`;
-    });
-    h += `</div><button class="add-btn edit-item" data-type="attacks">+</button>`;
-    c.innerHTML = h;
-  }
-  function renderEquipment() {
-    let h = `<h2>Equipaggiamento</h2><ul class="item-list">`;
-    characterData.equipment.forEach((item, index) => {
-      h += `<li><div class="view-item">${item.name} (${item.quantity})</div><div class="edit-item" style="display:flex;gap:5px;width:100%;"><input type="text" data-path="equipment.${index}.name" value="${item.name}" p="Oggetto"><input type="number" data-path="equipment.${index}.quantity" value="${item.quantity}" style="flex-basis:70px;"><button class="delete-btn" data-type="equipment" data-index="${index}">X</button></div></li>`;
-    });
-    h += `</ul><button class="add-btn edit-item" data-type="equipment">+</button>`;
-    let c = `<div id="coin-container">`;
-    Object.keys(characterData.coins).forEach((coin) => {
-      c += `<div><span class="stat-label">${coin.toUpperCase()}</span><div class="stat-value view-item">${
-        characterData.coins[coin]
-      }</div><input type="number" class="stat-value edit-item" data-path="coins.${coin}" value="${
-        characterData.coins[coin]
-      }"></div>`;
-    });
-    document.getElementById("equipment-box").innerHTML = h + c + `</div>`;
-  }
-  function renderPersonality() {
-    const p = characterData.personality;
-    document.getElementById(
-      "personality-box"
-    ).innerHTML = `<h2>Personalità</h2><h4>Aspetto</h4><p class="view-item">${p.appearance.replace(
-      /\n/g,
-      "<br>"
-    )}</p><textarea class="edit-item" data-path="personality.appearance">${
-      p.appearance
-    }</textarea><h4>Backstory</h4><p class="view-item">${p.backstory.replace(
-      /\n/g,
-      "<br>"
-    )}</p><textarea class="edit-item" data-path="personality.backstory">${
-      p.backstory
-    }</textarea>`;
-  }
-  function renderFeatures() {
-    let h = `<h2>Talenti e Privilegi</h2>`;
-    characterData.features.forEach((f, i) => {
-      h += `<div class="feature-item"><div class="view-item"><h4>${f.name}</h4><p>${f.description}</p></div><div class="edit-item"><input type="text" data-path="features.${i}.name" value="${f.name}" p="Nome Privilegio"><textarea data-path="features.${i}.description">${f.description}</textarea><button class="delete-btn" data-type="features" data-index="${i}">X</button></div></div>`;
-    });
-    h += `<button class="add-btn edit-item" data-type="features">+</button>`;
-    document.getElementById("features-box").innerHTML = h;
-  }
-  function renderProficiencies() {
-    const c = characterData.proficiencies;
-    document.getElementById(
-      "proficiencies-box"
-    ).innerHTML = `<h2>Altre Competenze</h2><h4>Armature</h4><p class="view-item">${c.armor}</p><textarea class="edit-item" data-path="proficiencies.armor">${c.armor}</textarea><h4>Armi</h4><p class="view-item">${c.weapons}</p><textarea class="edit-item" data-path="proficiencies.weapons">${c.weapons}</textarea><h4>Strumenti</h4><p class="view-item">${c.tools}</p><textarea class="edit-item" data-path="proficiencies.tools">${c.tools}</textarea><h4>Linguaggi</h4><p class="view-item">${c.languages}</p><textarea class="edit-item" data-path="proficiencies.languages">${c.languages}</textarea>`;
-  }
-  function renderSpells() {
-    const s = characterData.spells;
-    let h = `<h2>Incantesimi</h2><div class="spells-header"><div class="spell-main-stats"><div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${
-      s.ability
-    }</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${
-      s.ability
-    }"></div><div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${
-      s.spellModifier >= 0 ? "+" + s.spellModifier : s.spellModifier
-    }</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${
-      s.spellModifier
-    }"></div><div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${
-      s.saveDC
-    }</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${
-      s.saveDC
-    }"></div><div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${
-      s.attackBonus
-    }</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${
-      s.attackBonus
-    }"></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;"><h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button></div><div id="spell-slots-container" class="spell-slots-grid"></div><h4>Lista Incantesimi</h4><div id="spell-filters"></div><div id="spell-card-list"></div><button class="add-btn edit-item" data-type="spells.list">+</button>`;
-    document.getElementById("spells-section-container").innerHTML = h;
-    const slotsContainer = document.getElementById("spell-slots-container");
-    slotsContainer.innerHTML = "";
-    Object.entries(s.slots).forEach(([lvl, data]) => {
-      let slotHTML = `<div><h5>Lvl ${lvl} (${data.used}/${data.total})</h5><div class="tracker-grid">`;
-      for (let i = 0; i < data.total; i++)
-        slotHTML += `<div class="tracker-dot ${
-          i < data.used ? "used" : ""
-        }" data-type="spell" data-level="${lvl}"></div>`;
-      slotsContainer.innerHTML += slotHTML + `</div></div>`;
-    });
-    const filtersContainer = document.getElementById("spell-filters");
-    const levels = [...new Set(s.list.map((spell) => spell.level))].sort(
-      (a, b) => a - b
-    );
-    let filtersHTML = `<button class="btn btn-small filter-btn ${
-      spellFilter === "all" ? "active" : ""
-    }" data-filter="all">Tutti</button> <button class="btn btn-small filter-btn ${
-      spellFilter === "prepared" ? "active" : ""
-    }" data-filter="prepared">Preparati</button>`;
-    levels.forEach((level) => {
-      filtersHTML += `<button class="btn btn-small filter-btn ${
-        spellFilter == level ? "active" : ""
-      }" data-filter="${level}">${
-        level === 0 ? "Trucchetti" : `Lvl ${level}`
-      }</button>`;
-    });
-    filtersContainer.innerHTML = filtersHTML;
-    const cardListContainer = document.getElementById("spell-card-list");
-    cardListContainer.innerHTML = "";
-    s.list
-      .filter((spell) => {
-        if (spellFilter === "all") return true;
-        if (spellFilter === "prepared") return spell.prepared;
-        return spell.level == spellFilter;
-      })
-      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
-      .forEach((spell) => {
-        const originalIndex = s.list.findIndex((s) => s.name === spell.name);
-        let cardHTML = `<div class="spell-card"><div class="spell-card-header" data-card-index="${originalIndex}"><div class="spell-level">${
-          spell.level === 0 ? "C" : spell.level
-        }</div><div class="spell-name view-item">${
-          spell.name
-        }</div><input type="text" class="spell-name edit-item" data-path="spells.list.${originalIndex}.name" value="${
-          spell.name
-        }"><div class="spell-tags">${
-          spell.isConcentration ? '<span class="spell-tag">C</span>' : ""
-        }${
-          spell.isRitual ? '<span class="spell-tag">R</span>' : ""
-        }</div><input type="checkbox" data-prepare-index="${originalIndex}" ${
-          spell.prepared ? "checked" : ""
-        } title="Preparato"></div><div class="spell-card-body"><h5>${
-          spell.school
-        }</h5><div class="spell-details-grid"><div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
-          spell.castingTime
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
-          spell.castingTime
-        }"></div><div class="spell-detail"><label>Gittata</label><p class="view-item">${
-          spell.range
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
-          spell.range
-        }"></div><div class="spell-detail"><label>Durata</label><p class="view-item">${
-          spell.duration
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
-          spell.duration
-        }"></div><div class="spell-detail"><label>Componenti</label><p class="view-item">${
-          spell.components
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
-          spell.components
-        }"></div></div><label>Descrizione</label><p class="view-item">${
-          spell.description
-        }</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
-          spell.description
-        }</textarea><button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button></div></div>`;
-        cardListContainer.innerHTML += cardHTML;
-      });
-  }
+  // --- BLOCCO 5: INIZIALIZZAZIONE ---
 
   loadData();
   renderSheet();
   document.body.classList.add("view-mode");
+
   document.getElementById("edit-mode-btn").addEventListener("click", () => {
     if (isEditMode) {
       saveData();
     }
     toggleEditMode();
   });
+
   document.body.addEventListener("click", handleInteraction);
+
   document.body.addEventListener("change", (e) => {
     if (isEditMode && e.target.matches(".skill-prof")) {
       const key = e.target.dataset.skill;
@@ -641,11 +710,12 @@ document.addEventListener("DOMContentLoaded", () => {
       characterData.spells.list[index].prepared = e.target.checked;
     }
   });
+
   document.body.addEventListener("input", (e) => {
     if (isEditMode && e.target.matches('[data-path^="abilities."]')) {
       const key = e.target.dataset.path.split(".")[1];
       characterData.abilities[key] = parseInt(e.target.value, 10) || 0;
-      renderAbilities();
+      renderAbilities(); // Ri-disegna al volo per aggiornare modificatore e bonus
     }
   });
-});
+}); // Chiusura del listener DOMContentLoaded
