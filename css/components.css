@@ -73,7 +73,6 @@
   font-size: 2.5rem;
   font-weight: bold;
   color: white;
-  display: block;
 }
 .ability-box {
   background: var(--c-surface-light);
@@ -365,4 +364,241 @@
   opacity: 1;
   color: var(--c-secondary);
   text-shadow: 0 0 8px var(--c-secondary);
+}
+.key-stat-box .stat-label,
+.key-stat-box .stat-value {
+  display: block;
+}
+/* ----- NUOVO DESIGN STATISTICHE PRINCIPALI ----- */
+
+/* Stile per lo scudo della Classe Armatura */
+.ac-shield-container {
+  position: relative;
+  text-align: center;
+}
+
+.ac-shield-svg {
+  width: 180px; /* Leggermente più grande */
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+
+.shield-path {
+  fill: var(--c-surface-light); /* Colore di riempimento dello scudo */
+  stroke: var(--c-primary); /* Colore del bordo */
+  stroke-width: 6px;
+}
+
+.shield-text-value {
+  font-family: var(--font-header);
+  font-size: 3.5rem; /* Dimensione grande per il numero */
+  fill: var(--c-text); /* Colore del testo */
+  font-weight: 700;
+}
+
+.shield-text-label {
+  font-family: var(--font-body);
+  font-size: 0.65rem; /* Leggermente più piccolo */
+  fill: var(--c-label);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Stile per i box laterali (Iniziativa e Velocità) */
+.flanking-stat-box {
+  background-color: var(--c-surface);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.5rem;
+  text-align: center;
+  width: 120px;
+  border-top: 3px solid var(--c-secondary);
+  border-bottom: 3px solid var(--c-secondary);
+}
+
+.flanking-stat-box .stat-label {
+  font-size: 0.8rem;
+  color: var(--c-label);
+  text-transform: uppercase;
+}
+
+.flanking-stat-box .stat-value {
+  font-family: var(--font-header);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--c-text);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* AGGIUNGI ALLA FINE di css/components.css */
+
+/* ----- NUOVO DESIGN SEZIONE PUNTI VITA ----- */
+.hp-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem; /* Ridotto per un layout più compatto */
+}
+
+.hp-display {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 150px;
+}
+
+.hp-heart-icon {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  fill: var(--c-surface-light); /* Colore interno del cuore */
+  stroke: var(--c-danger); /* Bordo rosso */
+  stroke-width: 6px;
+  filter: drop-shadow(0 0 10px var(--c-danger));
+}
+
+.hp-text {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-header);
+  font-size: 4rem;
+  color: var(--c-text);
+  text-shadow: 0 0 5px #000;
+}
+
+.hp-bar-container {
+  width: 80%;
+  height: 20px;
+  background-color: #111;
+  border-radius: 10px;
+  border: 2px solid var(--c-border);
+  overflow: hidden;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.5s ease-out, background-color 0.5s ease;
+}
+
+.hp-sub-stats {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  font-family: var(--font-body);
+  color: var(--c-label);
+  text-align: center;
+}
+
+.hp-sub-stats span {
+  font-weight: bold;
+  color: var(--c-text);
+  font-size: 1.2rem;
+}
+
+.hp-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.hp-controls input[type="number"] {
+  width: 80px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-family: var(--font-header);
+  padding: 0.5rem;
+}
+
+.hp-control-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.hp-control-btn svg {
+  width: 50px;
+  height: 50px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.hp-control-btn:hover svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.hp-control-btn.heal { color: var(--c-success); }
+.hp-control-btn.damage { color: var(--c-danger); }
+
+.temp-hp-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.temp-hp-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.temp-hp-controls .btn-small {
+  background-color: var(--c-surface-light);
+  border: 1px solid var(--c-border);
+  font-weight: bold;
+  color: var(--c-label);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.temp-hp-controls .btn-small:hover {
+    background-color: var(--c-primary);
+    color: white;
+    border-color: var(--c-primary);
+    transform: scale(1.1);
+}
+
+/* Stile per il nuovo titolo "Punti Ferita" */
+.hp-container > h4 {
+    font-size: 1.5rem; /* Più grande */
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Stili per la nuova barra dei Punti Ferita Temporanei */
+.temp-hp-bar-container {
+  width: 60%; /* La facciamo più piccola di quella principale */
+  height: 10px; /* Più sottile */
+  background-color: #111;
+  border-radius: 5px;
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.temp-hp-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background-color: #00a8ff; /* Colore celeste */
+  transition: width 0.5s ease-out;
+}
+.tracker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
 }

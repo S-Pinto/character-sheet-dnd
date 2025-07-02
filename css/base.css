@@ -62,23 +62,20 @@ textarea:focus,
 select:focus {
   outline: 2px solid var(--c-primary);
 }
-.view-item {
-  display: inline-block;
-}
-.edit-item {
-  display: none;
-}
+/* SOSTITUISCI CON QUESTO in base.css */
+/* In modalità vista, nascondi sempre gli elementi di modifica */
 .view-mode .edit-item {
-  display: none;
+  display: none !important;
 }
+
+/* In modalità modifica, nascondi gli elementi di visualizzazione */
 .edit-mode .view-item {
-  display: none;
+  display: none !important;
 }
+
+/* In modalità modifica, mostra gli elementi di modifica come blocchi (o flex, etc. a seconda del bisogno) */
 .edit-mode .edit-item {
   display: block;
-}
-.view-mode .skill-prof {
-  display: none;
 }
 #save-feedback {
   color: var(--c-success);

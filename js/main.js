@@ -1,157 +1,163 @@
-// js/main.js
+// SOSTITUISCI L'INTERO FILE js/main.js CON QUESTO
 
 import { loadData, saveData } from "./storage.js";
 import * as ui from "./ui.js";
 
-// L'UNICA "FONTE DI VERITÀ" PER I DATI DELL'APP
 let characterData = {};
 let isEditMode = false;
 
-/**
- * Gestisce tutte le interazioni dell'utente catturate dal body.
- * Modifica lo stato (characterData) e poi chiama le funzioni di UI per aggiornare la vista.
- * @param {Event} e L'oggetto evento del DOM.
- */
+// REPLACE ONLY THIS FUNCTION in js/main.js
+
 function handleInteraction(e) {
   const target = e.target;
-  let renderAll = false; // Flag per decidere se fare un render completo
+  let stateChanged = false;
 
-  // Aggiungi item
-  if (target.matches(".add-btn")) {
-    const type = target.dataset.type;
-    if (type === "attacks") {
-      characterData.attacks.push({ name: "Nuovo Attacco", bonus: "+0", damage: "1d4", notes: "" });
-    } else if (type === "equipment") {
-      characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 });
-    } else if (type === "features") {
-      characterData.features.push({ name: "Nuovo Privilegio", description: "Descrizione..." });
-    }
-    //... Altri 'add' types...
-    renderAll = true;
-  }
+  // Use .closest() to robustly find the clicked element or its parent
+  const healBtn = target.closest("#heal-btn");
+  const damageBtn = target.closest("#damage-btn");
+  const tempHpBtn = target.closest("[data-hp-type='temp']");
+  const hitDiceIcon = target.closest(".hit-dice-icon");
+  const deathSaveIcon = target.closest(".skull-icon");
+  const spellTracker = target.closest('.tracker-dot[data-type="spell"]');
+  const customTracker = target.closest('.tracker-dot[data-type="custom"]');
+  const filterBtn = target.closest(".filter-btn");
+  const preparedToggle = target.closest(".prepared-toggle");
+  const longRestBtn = target.closest("#long-rest-btn");
+  const addBtn = target.closest(".add-btn"); // Find Add buttons
+  const deleteBtn = target.closest(".delete-btn"); // Find Delete buttons
+  const spellCardHeader = target.closest(".spell-card-header");
 
-  // Elimina item
-  else if (target.matches(".delete-btn")) {
-    const type = target.dataset.type;
-    const indexOrLevel = target.dataset.index || target.dataset.level;
-    if (type === "spells.slots") {
-      if (confirm(`Sei sicuro di voler eliminare gli slot di Livello ${indexOrLevel}?`)) {
-        delete characterData.spells.slots[indexOrLevel];
-        ui.renderSpells(characterData.spells);
+  if (healBtn || damageBtn) {
+    const val = parseInt(document.getElementById("hp-change-value").value, 10);
+    if (damageBtn) {
+      let damageToDeal = val;
+      if (characterData.hp.temp > 0) {
+        if (damageToDeal <= characterData.hp.temp) {
+          characterData.hp.temp -= damageToDeal;
+          damageToDeal = 0;
+        } else {
+          damageToDeal -= characterData.hp.temp;
+          characterData.hp.temp = 0;
+        }
       }
-      return;
+      if (damageToDeal > 0) {
+        characterData.hp.current = Math.max(0, characterData.hp.current - damageToDeal);
+      }
+    } else {
+      characterData.hp.current = Math.min(characterData.hp.max, characterData.hp.current + val);
     }
-    const list = type.split(".").reduce((o, i) => o[i], characterData);
-    list.splice(indexOrLevel, 1);
-    renderAll = true;
+    stateChanged = true;
   }
-
-  // Usa slot e contatori (richiedono solo render parziali)
-  else if (target.matches('.tracker-dot[data-type="custom"]')) {
-    const index = parseInt(target.dataset.index, 10);
-    const tracker = characterData.spells.customTrackers[index];
-    tracker.used = (tracker.used < tracker.max) ? tracker.used + 1 : 0;
-    ui.renderSpells(characterData.spells);
-    return;
-  } else if (target.matches('.tracker-dot[data-type="spell"]')) {
-    const level = target.dataset.level;
+  else if (tempHpBtn) {
+    const amount = parseInt(tempHpBtn.dataset.amount, 10);
+    characterData.hp.temp = Math.max(0, characterData.hp.temp + amount);
+    stateChanged = true;
+  }
+  else if (hitDiceIcon) {
+    const index = parseInt(hitDiceIcon.dataset.index, 10);
+    characterData.hitDice.diceStates[index] = !characterData.hitDice.diceStates[index];
+    stateChanged = true;
+  }
+  else if (deathSaveIcon) {
+    const type = deathSaveIcon.dataset.dsType;
+    const key = type + "es";
+    const index = parseInt(deathSaveIcon.dataset.index, 10);
+    characterData.deathSaves[key] = (characterData.deathSaves[key] === index + 1) ? index : index + 1;
+    stateChanged = true;
+  }
+  else if (spellTracker) {
+    const level = spellTracker.dataset.level;
     const slots = characterData.spells.slots[level];
     slots.used = (slots.used < slots.total) ? slots.used + 1 : 0;
+    stateChanged = true;
+  }
+   else if (customTracker) {
+    const index = parseInt(customTracker.dataset.index, 10);
+    const tracker = characterData.spells.customTrackers[index];
+    tracker.used = (tracker.used < tracker.max) ? tracker.used + 1 : 0;
+    stateChanged = true;
+  }
+  else if (longRestBtn) {
+    if (confirm("Recuperare tutti gli slot incantesimo e le cariche dei contatori speciali?")) {
+        for (const level in characterData.spells.slots) {
+            characterData.spells.slots[level].used = 0;
+        }
+        for (const tracker of characterData.spells.customTrackers) {
+            tracker.used = 0;
+        }
+        stateChanged = true;
+    }
+  }
+  // LOGICA PER I BOTTONI AGGIUNGI (REINSERITA)
+  else if (addBtn) {
+    const type = addBtn.dataset.type;
+    if (type === 'spells.list') { characterData.spells.list.push({ name: "Nuovo Incantesimo", level: 1, school: "N/A", castingTime: "1 Azione", range: "N/A", duration: "Istantanea", components: "V,S,M", description: "", prepared: true }); }
+    else if (type === 'spells.slots') { const level = prompt("Nuovo livello di slot (1-9):"); if (level && !characterData.spells.slots[level]) { characterData.spells.slots[level] = { total: 1, used: 0 }; } }
+    else if (type === 'spells.customTrackers') { characterData.spells.customTrackers.push({ name: "Nuovo Contatore", max: 1, used: 0 }); }
+    else if (type === 'attacks') { characterData.attacks.push({ name: "Nuovo Attacco", bonus: "+0", damage: "1d4", notes: "" }); }
+    // Add more types if needed
+    stateChanged = true;
+  }
+  // LOGICA PER I BOTTONI CANCELLA (REINSERITA)
+  else if (deleteBtn) {
+    if (confirm("Sei sicuro di voler eliminare questo elemento?")) {
+        const type = deleteBtn.dataset.type;
+        const key = deleteBtn.dataset.level || deleteBtn.dataset.index;
+        if (type === 'spells.slots') {
+            delete characterData.spells.slots[key];
+        } else {
+            const list = type.split('.').reduce((o, i) => o[i], characterData);
+            list.splice(key, 1);
+        }
+        stateChanged = true;
+    }
+  }
+  else if (filterBtn) {
+    ui.setSpellFilter(filterBtn.dataset.filter);
     ui.renderSpells(characterData.spells);
-    return;
+  }
+  else if (preparedToggle) {
+    const index = parseInt(preparedToggle.dataset.prepareIndex, 10);
+    if (characterData.spells.list[index]) {
+        characterData.spells.list[index].prepared = !characterData.spells.list[index].prepared;
+        preparedToggle.classList.toggle("prepared");
+    }
+  }
+  else if (spellCardHeader) {
+    spellCardHeader.parentElement.classList.toggle("expanded");
   }
 
-  // Altre interazioni che richiedono solo render parziali
-  else if (target.matches(".hit-dice-icon")) {
-    const index = parseInt(target.dataset.index, 10);
-    characterData.hitDice.diceStates[index] = !characterData.hitDice.diceStates[index];
-    ui.renderCombatStats(characterData);
-    return;
-  } else if (target.matches('[data-hp-type="temp"]')) {
-    const amount = parseInt(target.dataset.amount, 10);
-    characterData.hp.temp = Math.max(0, characterData.hp.temp + amount);
-    ui.renderCombatStats(characterData);
-    return;
-  } else if (target.matches(".skull-icon")) {
-    const type = target.dataset.dsType;
-    const key = type + "es";
-    const index = parseInt(target.dataset.index, 10);
-    characterData.deathSaves[key] = (characterData.deathSaves[key] === index + 1) ? index : index + 1;
-    ui.renderCombatStats(characterData);
-    return;
-  } else if (target.id === "heal-btn" || target.id === "damage-btn") {
-    const val = parseInt(document.getElementById("hp-change-value").value, 10);
-    characterData.hp.current = target.id === 'heal-btn'
-      ? Math.min(characterData.hp.max, characterData.hp.current + val)
-      : Math.max(0, characterData.hp.current - val);
-    ui.renderCombatStats(characterData);
-    return;
-  }
-
-  // Interazioni degli incantesimi
-  else if (target.matches(".filter-btn")) {
-    ui.setSpellFilter(target.dataset.filter);
-    ui.renderSpells(characterData.spells);
-    return;
-  } else if (target.closest(".spell-card-header") && !target.matches(".prepared-toggle")) {
-    target.closest(".spell-card").classList.toggle("expanded");
-  } else if (target.matches(".prepared-toggle")) {
-      const index = parseInt(target.dataset.prepareIndex, 10);
-      characterData.spells.list[index].prepared = !characterData.spells.list[index].prepared;
-      target.classList.toggle("prepared");
-  }
-
-  if (renderAll) {
+  if (stateChanged) {
     ui.renderSheet(characterData);
   }
 }
 
-/**
- * Raccoglie tutti i dati modificabili dall'interfaccia utente (quando in edit-mode)
- * e aggiorna l'oggetto characterData.
- */
 function gatherDataFromUI() {
     document.querySelectorAll("[data-path]").forEach((el) => {
         const path = el.dataset.path.split(".");
         let current = characterData;
-        for (let i = 0; i < path.length - 1; i++) {
-            current = current[path[i]];
-        }
+        for (let i = 0; i < path.length - 1; i++) { current = current[path[i]]; }
         const value = el.type === 'number' ? parseInt(el.value, 10) || 0 : el.value;
         current[path[path.length - 1]] = value;
     });
-
     document.querySelectorAll(".skill-prof.edit-item").forEach((el) => {
         const key = el.dataset.skill;
         const type = el.dataset.type;
-        if (type === 'save') {
-            characterData.savingThrows[key] = el.checked;
-        } else {
-            characterData.skills[key].proficient = el.checked;
-        }
+        if (type === 'save') { characterData.savingThrows[key] = el.checked; }
+        else { characterData.skills[key].proficient = el.checked; }
     });
 }
 
-/**
- * Gestisce l'attivazione/disattivazione della modalità di modifica.
- * Salva i dati quando si esce dalla modalità di modifica.
- */
 function toggleEditMode() {
   isEditMode = !isEditMode;
-
   if (!isEditMode) {
-    // Se stiamo uscendo dalla modalità modifica, raccogli i dati e salva
     gatherDataFromUI();
     saveData(characterData);
   }
-
   ui.setEditMode(isEditMode);
   ui.renderSheet(characterData);
 }
 
-/**
- * Funzione di inizializzazione dell'applicazione.
- */
 async function init() {
   characterData = await loadData();
   ui.setEditMode(isEditMode);
@@ -160,16 +166,13 @@ async function init() {
   document.getElementById("edit-mode-btn").addEventListener("click", toggleEditMode);
   document.body.addEventListener("click", handleInteraction);
   
-  // Listener specifico per l'input per un feedback immediato (es. modificatori)
   document.body.addEventListener("input", (e) => {
     if (isEditMode && e.target.matches('[data-path^="abilities."]')) {
       const key = e.target.dataset.path.split(".")[1];
       characterData.abilities[key] = parseInt(e.target.value, 10) || 0;
-      // Aggiorna solo la sezione abilità per migliore performance
-      ui.renderAbilities(characterData);
+      ui.renderSheet(characterData);
     }
   });
 }
 
-// Avvia l'applicazione
 init();
