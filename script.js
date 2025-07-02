@@ -195,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     imageUrl: "valenor.jpg",
   };
+
   const SKILL_MAP = {
     str: ["athletics"],
     dex: ["acrobatics", "sleightOfHand", "stealth"],
@@ -424,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .forEach(([level, data]) => {
         let slotHTML = `<div class="spell-slot-row">
             <strong class="slot-label">Livello ${level}</strong>
-            <div class="edit-item" style="display:flex; align-items:center; gap:0.5rem;">
+            <div class="edit-item slot-controls">
                 <button class="btn btn-small" data-slot-change="${level}" data-amount="-1">-</button>
                 <span>${data.total}</span>
                 <button class="btn btn-small" data-slot-change="${level}" data-amount="1">+</button>
@@ -434,7 +435,9 @@ document.addEventListener("DOMContentLoaded", () => {
           slotHTML += `<div class="tracker-dot ${
             i < data.used ? "used" : ""
           }" data-type="spell" data-level="${level}"></div>`;
-        slotsContainer.innerHTML += slotHTML + `</div></div>`;
+        slotsContainer.innerHTML +=
+          slotHTML +
+          `<button class="delete-btn edit-item" data-type="spells.slots" data-level="${level}">X</button></div>`;
       });
 
     const customTrackersContainer = document.getElementById(
@@ -445,7 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let trackerHTML = `<div class="spell-slot-row">
             <div class="slot-label view-item">${tracker.name}</div>
             <input class="slot-label edit-item" data-path="spells.customTrackers.${index}.name" value="${tracker.name}">
-            <div class="edit-item" style="display:flex; align-items:center; gap:0.5rem;">
+            <div class="edit-item slot-controls">
                 <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="-1">-</button>
                 <span>${tracker.max}</span>
                 <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="1">+</button>
@@ -455,7 +458,7 @@ document.addEventListener("DOMContentLoaded", () => {
         trackerHTML += `<div class="tracker-dot ${
           i < tracker.used ? "used" : ""
         }" data-type="custom" data-index="${index}"></div>`;
-      customTrackersContainer.innerHTML += `<div>${trackerHTML}</div><button class="delete-btn edit-item" data-type="spells.customTrackers" data-index="${index}">X</button></div>`;
+      customTrackersContainer.innerHTML += `<div style="width:100%">${trackerHTML}</div><button class="delete-btn edit-item" data-type="spells.customTrackers" data-index="${index}">X</button></div>`;
     });
 
     const filtersContainer = document.getElementById("spell-filters");
@@ -500,7 +503,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }${
           spell.isRitual ? '<span class="spell-tag">R</span>' : ""
         }</div></div><div class="spell-card-body">
-            <div style="display:flex; justify-content:space-between; align-items:start;">
+            <div class="spell-body-main-grid">
                 <div class="spell-details-grid">
                     <div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
                       spell.castingTime
@@ -523,17 +526,20 @@ document.addEventListener("DOMContentLoaded", () => {
           spell.components
         }"></div>
                 </div>
-                <div class="spell-detail">
-                    <label>Preparato</label>
-                    <span class="prepared-toggle view-item ${
+                <div class="spell-side-info">
+                    <div class="spell-detail"><label>Scuola</label><p class="view-item">${
+                      spell.school
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.school" value="${
+          spell.school
+        }"></div>
+                    <div class="spell-detail"><label>Preparato</label><span class="prepared-toggle ${
                       spell.prepared ? "prepared" : ""
-                    }" data-prepare-index="${originalIndex}" title="Preparato">📖</span>
-                    <span class="prepared-toggle edit-item ${
-                      spell.prepared ? "prepared" : ""
-                    }" data-prepare-index="${originalIndex}" title="Preparato">📖</span>
+                    }" data-prepare-index="${originalIndex}" title="Preparato">📖</span></div>
                 </div>
             </div>
-            <label>Descrizione</label><p class="view-item">${spell.description.replace(
+            <label>Descrizione</label><p class="view-item">${(
+              spell.description || ""
+            ).replace(
               /\n/g,
               "<br>"
             )}</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
@@ -544,8 +550,167 @@ document.addEventListener("DOMContentLoaded", () => {
         cardListContainer.innerHTML += cardHTML;
       });
   }
-  // --- BLOCCO 3: LOGICA INTERATTIVA ---
+  function renderSpells() {
+    const s = characterData.spells;
+    const container = document.getElementById("spells-section-container");
+    const spellModifierValue =
+      s.spellModifier >= 0 ? `+${s.spellModifier}` : s.spellModifier;
 
+    let headerHTML = `<h2>Incantesimi</h2>
+        <div class="spells-header">
+            <div class="spell-main-stats">
+                <div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${s.ability}</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${s.ability}"></div>
+                <div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${spellModifierValue}</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${s.spellModifier}"></div>
+                <div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${s.saveDC}</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${s.saveDC}"></div>
+                <div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${s.attackBonus}</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${s.attackBonus}"></div>
+            </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 1rem;">
+            <h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button>
+        </div>
+        <div id="spell-slots-container"></div>
+        <button class="add-btn edit-item" data-type="spells.slots">+ Aggiungi Livello Slot</button>
+        <h4 style="margin-top: 1.5rem;">Contatori Speciali</h4>
+        <div id="custom-trackers-container"></div>
+        <button class="add-btn edit-item" data-type="spells.customTrackers">+ Aggiungi Contatore</button>
+        <h4 style="margin-top: 1.5rem;">Lista Incantesimi</h4>
+        <div id="spell-filters"></div>
+        <div id="spell-card-list"></div>
+        <button class="add-btn edit-item" data-type="spells.list">+ Aggiungi Incantesimo</button>`;
+    container.innerHTML = headerHTML;
+
+    const slotsContainer = document.getElementById("spell-slots-container");
+    slotsContainer.innerHTML = "";
+    Object.entries(s.slots)
+      .sort((a, b) => a[0] - b[0])
+      .forEach(([level, data]) => {
+        let slotHTML = `<div class="spell-slot-row">
+            <strong class="slot-label">Livello ${level}</strong>
+            <div class="edit-item slot-controls">
+                <button class="btn btn-small" data-slot-change="${level}" data-amount="-1">-</button>
+                <span>${data.total}</span>
+                <button class="btn btn-small" data-slot-change="${level}" data-amount="1">+</button>
+            </div>
+            <div class="tracker-grid">`;
+        for (let i = 0; i < data.total; i++)
+          slotHTML += `<div class="tracker-dot ${
+            i < data.used ? "used" : ""
+          }" data-type="spell" data-level="${level}"></div>`;
+        slotsContainer.innerHTML +=
+          slotHTML +
+          `<button class="delete-btn edit-item" data-type="spells.slots" data-level="${level}">X</button></div>`;
+      });
+
+    const customTrackersContainer = document.getElementById(
+      "custom-trackers-container"
+    );
+    customTrackersContainer.innerHTML = "";
+    s.customTrackers.forEach((tracker, index) => {
+      let trackerHTML = `<div class="spell-slot-row">
+            <div class="slot-label view-item">${tracker.name}</div>
+            <input class="slot-label edit-item" data-path="spells.customTrackers.${index}.name" value="${tracker.name}">
+            <div class="edit-item slot-controls">
+                <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="-1">-</button>
+                <span>${tracker.max}</span>
+                <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="1">+</button>
+            </div>
+            <div class="tracker-grid">`;
+      for (let i = 0; i < tracker.max; i++)
+        trackerHTML += `<div class="tracker-dot ${
+          i < tracker.used ? "used" : ""
+        }" data-type="custom" data-index="${index}"></div>`;
+      customTrackersContainer.innerHTML += `<div style="width:100%">${trackerHTML}</div><button class="delete-btn edit-item" data-type="spells.customTrackers" data-index="${index}">X</button></div>`;
+    });
+
+    const filtersContainer = document.getElementById("spell-filters");
+    const levels = [...new Set(s.list.map((spell) => spell.level))].sort(
+      (a, b) => a - b
+    );
+    let filtersHTML = `<button class="btn btn-small filter-btn ${
+      spellFilter === "all" ? "active" : ""
+    }" data-filter="all">Tutti</button> <button class="btn btn-small filter-btn ${
+      spellFilter === "prepared" ? "active" : ""
+    }" data-filter="prepared">Preparati</button>`;
+    levels.forEach((level) => {
+      filtersHTML += `<button class="btn btn-small filter-btn ${
+        spellFilter == level ? "active" : ""
+      }" data-filter="${level}">${
+        level === 0 ? "Trucchetti" : `Lvl ${level}`
+      }</button>`;
+    });
+    filtersContainer.innerHTML = filtersHTML;
+
+    const cardListContainer = document.getElementById("spell-card-list");
+    cardListContainer.innerHTML = "";
+    s.list
+      .filter((spell) => {
+        if (spellFilter === "all") return true;
+        if (spellFilter === "prepared") return spell.prepared;
+        return spell.level == spellFilter;
+      })
+      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
+      .forEach((spell) => {
+        const originalIndex = s.list.findIndex(
+          (s) => s.name === spell.name && s.level === spell.level
+        );
+        let cardHTML = `<div class="spell-card"><div class="spell-card-header" data-card-index="${originalIndex}"><div class="spell-level">${
+          spell.level === 0 ? "C" : spell.level
+        }</div><div class="spell-name view-item">${
+          spell.name
+        }</div><input type="text" class="spell-name edit-item" data-path="spells.list.${originalIndex}.name" value="${
+          spell.name
+        }"><div class="spell-tags">${
+          spell.isConcentration ? '<span class="spell-tag">C</span>' : ""
+        }${
+          spell.isRitual ? '<span class="spell-tag">R</span>' : ""
+        }</div></div><div class="spell-card-body">
+            <div class="spell-body-main-grid">
+                <div class="spell-details-grid">
+                    <div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
+                      spell.castingTime
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
+          spell.castingTime
+        }"></div>
+                    <div class="spell-detail"><label>Gittata</label><p class="view-item">${
+                      spell.range
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
+          spell.range
+        }"></div>
+                    <div class="spell-detail"><label>Durata</label><p class="view-item">${
+                      spell.duration
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
+          spell.duration
+        }"></div>
+                    <div class="spell-detail"><label>Componenti</label><p class="view-item">${
+                      spell.components
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
+          spell.components
+        }"></div>
+                </div>
+                <div class="spell-side-info">
+                    <div class="spell-detail"><label>Scuola</label><p class="view-item">${
+                      spell.school
+                    }</p><input class="edit-item" data-path="spells.list.${originalIndex}.school" value="${
+          spell.school
+        }"></div>
+                    <div class="spell-detail"><label>Preparato</label><span class="prepared-toggle ${
+                      spell.prepared ? "prepared" : ""
+                    }" data-prepare-index="${originalIndex}" title="Preparato">📖</span></div>
+                </div>
+            </div>
+            <label>Descrizione</label><p class="view-item">${(
+              spell.description || ""
+            ).replace(
+              /\n/g,
+              "<br>"
+            )}</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
+          spell.description
+        }</textarea>
+            <button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button>
+        </div></div>`;
+        cardListContainer.innerHTML += cardHTML;
+      });
+  }
   function handleInteraction(e) {
     const target = e.target;
     if (target.matches(".add-btn")) {
@@ -613,9 +778,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (target.matches(".delete-btn")) {
       const type = target.dataset.type;
-      const index = parseInt(target.dataset.index, 10);
+      const indexOrLevel = target.dataset.index || target.dataset.level;
+      if (type === "spells.slots") {
+        if (
+          confirm(
+            `Sei sicuro di voler eliminare gli slot di Livello ${indexOrLevel}?`
+          )
+        ) {
+          delete characterData.spells.slots[indexOrLevel];
+          renderSheet();
+        }
+        return;
+      }
       const list = type.split(".").reduce((o, i) => o[i], characterData);
-      list.splice(index, 1);
+      list.splice(indexOrLevel, 1);
       renderSheet();
     }
     if (isEditMode && target.matches("[data-slot-change]")) {
@@ -675,32 +851,13 @@ document.addEventListener("DOMContentLoaded", () => {
       renderSpells();
     }
     if (target.matches(".prepared-toggle")) {
-      // Logica per l'icona del libro
       const index = parseInt(target.dataset.prepareIndex, 10);
       characterData.spells.list[index].prepared =
         !characterData.spells.list[index].prepared;
-      renderSpells();
-    }
-    // ... (resto della logica handleInteraction)
-    if (target.matches(".hit-dice-icon")) {
-      const index = parseInt(target.dataset.index, 10);
-      characterData.hitDice.diceStates[index] =
-        !characterData.hitDice.diceStates[index];
-      renderCombatStats();
-    }
-    if (isEditMode && target.matches("[data-hd-total-change]")) {
-      const change = parseInt(target.dataset.hdTotalChange, 10);
-      const newTotal = Math.max(0, characterData.hitDice.total + change);
-      characterData.hitDice.total = newTotal;
-      while (characterData.hitDice.diceStates.length < newTotal) {
-        characterData.hitDice.diceStates.push(false);
-      }
-      characterData.hitDice.diceStates.length = newTotal;
-      renderCombatStats();
-    }
-    if (isEditMode && target.matches("[data-hd-type-change]")) {
-      characterData.hitDice.type = target.dataset.hdTypeChange;
-      renderCombatStats();
+      target.classList.toggle("prepared");
+      target.textContent = characterData.spells.list[index].prepared
+        ? "📖"
+        : "📕";
     }
     if (target.matches('[data-hp-type="temp"]')) {
       const amount = parseInt(target.dataset.amount, 10);
@@ -726,8 +883,27 @@ document.addEventListener("DOMContentLoaded", () => {
         : Math.max(0, characterData.hp.current - val);
       renderCombatStats();
     }
+    if (target.matches(".hit-dice-icon")) {
+      const index = parseInt(target.dataset.index, 10);
+      characterData.hitDice.diceStates[index] =
+        !characterData.hitDice.diceStates[index];
+      renderCombatStats();
+    }
+    if (isEditMode && target.matches("[data-hd-total-change]")) {
+      const change = parseInt(target.dataset.hdTotalChange, 10);
+      const newTotal = Math.max(0, characterData.hitDice.total + change);
+      characterData.hitDice.total = newTotal;
+      while (characterData.hitDice.diceStates.length < newTotal) {
+        characterData.hitDice.diceStates.push(false);
+      }
+      characterData.hitDice.diceStates.length = newTotal;
+      renderCombatStats();
+    }
+    if (isEditMode && target.matches("[data-hd-type-change]")) {
+      characterData.hitDice.type = target.dataset.hdTypeChange;
+      renderCombatStats();
+    }
   }
-  // --- BLOCCO 4: GESTIONE STATO E SALVATAGGIO ---
 
   function toggleEditMode() {
     isEditMode = !isEditMode;
@@ -738,7 +914,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.classList.toggle("save-btn", isEditMode);
     renderSheet();
   }
-
   function saveData() {
     document.querySelectorAll("[data-path]").forEach((el) => {
       const path = el.dataset.path.split(".");
@@ -746,21 +921,12 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 0; i < path.length - 1; i++) {
         obj = obj[path[i]];
       }
-      // Escludiamo i dati gestiti solo da bottoni
-      if (path[0] === "hitDice") return;
       if (
-        path[0] === "spells" &&
-        path[1] === "customTrackers" &&
-        path.length > 2
-      ) {
-        const index = parseInt(path[2], 10);
-        if (characterData.spells.customTrackers[index]) {
-          characterData.spells.customTrackers[index].name = el.value;
-        }
+        path[0] === "hitDice" ||
+        (path.join(".").includes("customTrackers") && path.length > 2) ||
+        path.join(".").includes("slots")
+      )
         return;
-      }
-      if (path[0] === "spells" && path[1] === "slots") return;
-
       const value =
         el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
       obj[path[path.length - 1]] = value;
@@ -774,15 +940,20 @@ document.addEventListener("DOMContentLoaded", () => {
         characterData.skills[key].proficient = el.checked;
       }
     });
-
-    // Lo stato 'prepared' viene già aggiornato al click, quindi il salvataggio è implicito
+    characterData.spells.list.forEach((spell, index) => {
+      const prepToggle = document.querySelector(
+        `[data-prepare-index="${index}"]`
+      );
+      if (prepToggle) {
+        spell.prepared = prepToggle.classList.contains("prepared");
+      }
+    });
     localStorage.setItem("dndCharacterSheet", JSON.stringify(characterData));
     const feedback = document.getElementById("save-feedback");
     feedback.textContent = "Salvato!";
     feedback.classList.add("visible");
     setTimeout(() => feedback.classList.remove("visible"), 2000);
   }
-
   function loadData() {
     const savedData = localStorage.getItem("dndCharacterSheet");
     if (savedData) {
@@ -817,7 +988,6 @@ document.addEventListener("DOMContentLoaded", () => {
       characterData = merge(characterData, loadedData);
     }
   }
-
   loadData();
   renderSheet();
   document.body.classList.add("view-mode");
@@ -838,10 +1008,6 @@ document.addEventListener("DOMContentLoaded", () => {
         characterData.skills[key].proficient = e.target.checked;
       }
       renderAbilities();
-    }
-    if (e.target.matches("[data-prepare-index]")) {
-      const index = parseInt(e.target.dataset.prepareIndex, 10);
-      characterData.spells.list[index].prepared = e.target.checked;
     }
   });
   document.body.addEventListener("input", (e) => {

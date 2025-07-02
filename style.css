@@ -367,10 +367,12 @@ body {
   background-color: var(--c-surface-light);
   position: relative;
 }
+#attacks-box .attack-card h4 {
+  color: var(--c-danger);
+}
 .attack-card h4 {
   font-family: var(--font-header);
   font-size: 1.8rem;
-  color: var(--c-danger);
   margin: 0 0 0.5rem 0;
   letter-spacing: 1px;
 }
@@ -488,6 +490,7 @@ select:focus {
 /* --- NUOVI STILI SEZIONE INCANTESIMI --- */
 #spells-section-container {
   background-color: var(--c-surface);
+  margin-top: 1.5rem;
 }
 .spells-header {
   display: flex;
@@ -515,7 +518,8 @@ select:focus {
   text-transform: uppercase;
   color: var(--c-label);
 }
-.spell-main-stats .stat-box .stat-value {
+.spell-main-stats .stat-box .view-item,
+.spell-main-stats .stat-box .edit-item {
   order: 2;
   font-size: 2.2rem;
   font-weight: bold;
@@ -545,6 +549,11 @@ select:focus {
   font-size: 1.2rem;
   font-weight: bold;
   flex-grow: 1;
+}
+.slot-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .tracker-dot {
   width: 20px;
@@ -626,28 +635,32 @@ select:focus {
   padding: 1.5rem;
   border-top: 1px solid var(--c-border);
 }
+.spell-body-main-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
+}
 .spell-details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1rem;
 }
 .spell-detail {
   text-align: center;
 }
-.spell-detail h5 {
-  margin: 0 0 0.25rem 0;
-  color: var(--c-label);
+.spell-detail label {
   font-size: 0.8em;
   text-transform: uppercase;
+  color: var(--c-label);
 }
-.spell-detail p,
-.spell-detail input,
-.spell-detail textarea {
-  margin: 0;
-  color: white;
+.spell-detail .view-item,
+.spell-detail .edit-item {
   font-family: var(--font-serif);
   font-size: 1.1em;
+  color: white;
+  margin-top: 0.25rem;
 }
 .spell-card .delete-btn {
   top: 1rem;
@@ -658,10 +671,11 @@ select:focus {
   color: var(--c-text) !important;
 }
 .prepared-toggle {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   cursor: pointer;
   opacity: 0.4;
   user-select: none;
+  transition: all 0.2s;
 }
 .prepared-toggle.prepared {
   opacity: 1;
@@ -687,7 +701,8 @@ select:focus {
   #main-header-grid,
   #abilities-container,
   #main-content-grid,
-  #key-stats-container {
+  #key-stats-container,
+  #main-content-grid > div {
     grid-template-columns: 1fr;
   }
   #main-header-grid {
