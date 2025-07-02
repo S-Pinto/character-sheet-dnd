@@ -1,212 +1,45 @@
-// --- BLOCCO 1: DATI E COSTANTI ---
+/// --- BLOCCO 1: DATI E COSTANTI ---
 
-document.addEventListener("DOMContentLoaded", () => {
-  let characterData = {
-    name: "Valenor Lightbringer",
-    class: "Paladino 5 / Warlock 1",
-    level: 6,
-    background: "Soldato",
-    race: "Aasimar",
-    alignment: "Neutrale Buono",
-    ac: 18,
-    speed: "30ft",
-    hp: { max: 60, current: 60, temp: 0 },
-    hitDice: {
-      total: 5,
-      type: "d10",
-      diceStates: [false, false, false, false, false],
-    },
-    deathSaves: { successes: 0, failures: 0 },
-    proficiencyBonus: 3,
-    abilities: { str: 17, dex: 10, con: 14, int: 8, wis: 12, cha: 15 },
-    savingThrows: {
-      str: true,
-      dex: false,
-      con: true,
-      int: false,
-      wis: true,
-      cha: true,
-    },
-    skills: {
-      athletics: { proficient: true },
-      acrobatics: { proficient: false },
-      sleightOfHand: { proficient: false },
-      stealth: { proficient: false },
-      arcana: { proficient: false },
-      history: { proficient: false },
-      investigation: { proficient: false },
-      nature: { proficient: false },
-      religion: { proficient: false },
-      animalHandling: { proficient: false },
-      insight: { proficient: true },
-      medicine: { proficient: false },
-      perception: { proficient: false },
-      survival: { proficient: false },
-      deception: { proficient: false },
-      intimidation: { proficient: true },
-      performance: { proficient: false },
-      persuasion: { proficient: true },
-    },
-    proficiencies: {
-      armor: "Armature Leggere, Medie, Pesanti, Scudi",
-      weapons: "Armi Semplici, Armi da Guerra",
-      tools: "Set da Gioco (dadi)",
-      languages: "Comune, Celestiale, Orchesco",
-    },
-    attacks: [
-      {
-        name: "Egen-Vath",
-        bonus: "+7",
-        damage: "2d6s + 1d4f + 4",
-        notes:
-          "Se l'attacco manca, l'avversario subisce comunque 3 danni da fuoco.",
-      },
-      {
-        name: "Spada Lunga (+1)",
-        bonus: "+7",
-        damage: "1d8+6 Tagliente",
-        notes: "Stile Duellare (+2 danni) attivo.",
-      },
-      {
-        name: "Eldritch Blast",
-        bonus: "+5",
-        damage: "2d10 Forza",
-        notes: "Gittata 18m, due raggi.",
-      },
-    ],
-    equipment: [
-      { name: "Zaino del Sacerdote", quantity: 1 },
-      { name: "Simbolo Sacro di Torm", quantity: 1 },
-      { name: "Kit da Guaritore", quantity: 10 },
-    ],
-    coins: { cp: 0, sp: 0, ep: 0, gp: 15, pp: 0 },
-    personality: {
-      appearance:
-        "Aasimar alto e imponente, con capelli bianco-argento e occhi penetranti. Indossa un'armatura ornata bianca e oro.",
-      backstory:
-        "Ex-caporale degli Evenswords, ha stretto un patto con un'entità celestiale dopo aver perso la memoria e le sue certezze, guidato da visioni di un drago argentato.",
-    },
-    features: [
-      {
-        name: "Attaccante Selvaggio",
-        description:
-          "Una volta per turno, quando colpisci con un'arma, puoi ritirare i dadi di danno e usare il risultato migliore.",
-      },
-      {
-        name: "Duellare",
-        description:
-          "Quando impugni un'arma da mischia in una mano e nessun'altra arma, ottieni un bonus di +2 ai tiri per i danni con quell'arma.",
-      },
-      {
-        name: "Percezione Divina",
-        description:
-          "Come azione bonus, percepisci Celestiali, Immondi e Non-morti entro 18m.",
-      },
-      {
-        name: "Imposizione delle Mani",
-        description:
-          "Hai una riserva di 25 Punti Vita (5 x liv. Paladino) per curare.",
-      },
-      {
-        name: "Resistenza Celestiale",
-        description: "Resistenza ai danni necrotici e radianti.",
-      },
-    ],
-    spells: {
-      ability: "Carisma",
-      spellModifier: 2,
-      saveDC: 13,
-      attackBonus: 5,
-      slots: { 1: { total: 5, used: 0 }, 2: { total: 2, used: 0 } },
-      customTrackers: [
-        { name: "Incanalare Divinità", max: 1, used: 0 },
-        { name: "Patto Magico (Warlock)", max: 1, used: 0 },
-      ],
-      list: [
-        {
-          name: "Eldritch Blast",
-          level: 0,
-          school: "Invocazione",
-          castingTime: "1 Azione",
-          range: "36m",
-          duration: "Istantanea",
-          components: "V, S",
-          isRitual: false,
-          isConcentration: false,
-          description:
-            "Un raggio di energia crepitante si protende verso una creatura. Colpisce con un attacco di incantesimo a distanza. Infligge 1d10 danni da forza.",
-          prepared: true,
-        },
-        {
-          name: "Cure Wounds",
-          level: 1,
-          school: "Evocazione",
-          castingTime: "1 Azione",
-          range: "Tocco",
-          duration: "Istantanea",
-          components: "V, S",
-          isRitual: false,
-          isConcentration: false,
-          description:
-            "Una creatura che tocchi recupera un numero di punti ferita pari a 1d8 + il tuo modificatore di abilità da incantatore.",
-          prepared: true,
-        },
-        {
-          name: "Shield of Faith",
-          level: 1,
-          school: "Abiurazione",
-          castingTime: "1 Azione Bonus",
-          range: "18m",
-          duration: "10 minuti",
-          components: "V, S, M",
-          isRitual: false,
-          isConcentration: true,
-          description:
-            "Una creatura a gittata ottiene un bonus di +2 alla CA per la durata.",
-          prepared: true,
-        },
-        {
-          name: "Misty Step",
-          level: 2,
-          school: "Evocazione",
-          castingTime: "1 Azione Bonus",
-          range: "Sé",
-          duration: "Istantanea",
-          components: "V",
-          isRitual: false,
-          isConcentration: false,
-          description:
-            "Ti teletrasporti in uno spazio non occupato che puoi vedere entro 9 metri.",
-          prepared: true,
-        },
-        {
-          name: "Find Steed",
-          level: 2,
-          school: "Evocazione",
-          castingTime: "10 minuti",
-          range: "9m",
-          duration: "Istantanea",
-          components: "V, S",
-          isRitual: true,
-          isConcentration: false,
-          description:
-            "Evochi uno spirito che assume la forma di una cavalcatura leale.",
-          prepared: false,
-        },
-      ],
-    },
-    imageUrl: "valenor.jpg",
-  };
+document.addEventListener('DOMContentLoaded', () => {
 
-  const SKILL_MAP = {
-    str: ["athletics"],
-    dex: ["acrobatics", "sleightOfHand", "stealth"],
-    int: ["arcana", "history", "investigation", "nature", "religion"],
-    wis: ["animalHandling", "insight", "medicine", "perception", "survival"],
-    cha: ["deception", "intimidation", "performance", "persuasion"],
-  };
-  let isEditMode = false;
-  let spellFilter = "all";
+    let characterData = {
+        name: "Valenor Lightbringer", class: "Paladino 5 / Warlock 1", level: 6, background: "Soldato", race: "Aasimar", alignment: "Neutrale Buono", ac: 18, speed: "30ft",
+        hp: { max: 60, current: 60, temp: 0 },
+        hitDice: { total: 5, type: 'd10', diceStates: [false, false, false, false, false] },
+        deathSaves: { successes: 0, failures: 0 },
+        proficiencyBonus: 3,
+        abilities: { str: 17, dex: 10, con: 14, int: 8, wis: 12, cha: 15 },
+        savingThrows: { str: true, dex: false, con: true, int: false, wis: true, cha: true },
+        skills: { athletics: { proficient: true }, acrobatics: { proficient: false }, sleightOfHand: { proficient: false }, stealth: { proficient: false }, arcana: { proficient: false }, history: { proficient: false }, investigation: { proficient: false }, nature: { proficient: false }, religion: { proficient: false }, animalHandling: { proficient: false }, insight: { proficient: true }, medicine: { proficient: false }, perception: { proficient: false }, survival: { proficient: false }, deception: { proficient: false }, intimidation: { proficient: true }, performance: { proficient: false }, persuasion: { proficient: true }},
+        proficiencies: { armor: "Armature Leggere, Medie, Pesanti, Scudi", weapons: "Armi Semplici, Armi da Guerra", tools: "Set da Gioco (dadi)", languages: "Comune, Celestiale, Orchesco" },
+        attacks: [ { name: "Egen-Vath", bonus: "+7", damage: "2d6s + 1d4f + 4", notes: "Se l'attacco manca, l'avversario subisce comunque 3 danni da fuoco." }, { name: "Spada Lunga (+1)", bonus: "+7", damage: "1d8+6 Tagliente", notes: "Stile Duellare (+2 danni) attivo." }, { name: "Eldritch Blast", bonus: "+5", damage: "2d10 Forza", notes: "Gittata 18m, due raggi." } ],
+        equipment: [ { name: "Zaino del Sacerdote", quantity: 1 }, { name: "Simbolo Sacro di Torm", quantity: 1 }, { name: "Kit da Guaritore", quantity: 10 } ],
+        coins: { cp: 0, sp: 0, ep: 0, gp: 15, pp: 0 },
+        personality: { appearance: "Aasimar alto e imponente...", backstory: "Ex-caporale degli Evenswords..." },
+        features: [ { name: "Attaccante Selvaggio", description: "Una volta per turno, ritiri i dadi di danno e usi il meglio." }, { name: "Duellare", description: "+2 ai danni con arma a una mano." } ],
+        spells: {
+            ability: "Carisma",
+            spellModifier: 2,
+            saveDC: 13,
+            attackBonus: 5,
+            slots: { 1: { total: 5, used: 0 }, 2: { total: 2, used: 0 } },
+            customTrackers: [
+                { name: "Incanalare Divinità", max: 1, used: 0 },
+                { name: "Patto Magico (Warlock)", max: 1, used: 0 }
+            ],
+            list: [
+                { name: "Eldritch Blast", level: 0, school: "Invocazione", castingTime: "1 Azione", range: "36m", duration: "Istantanea", components: "V, S", isRitual: false, isConcentration: false, description: "Un raggio di energia crepitante si protende verso una creatura. Colpisce con un attacco di incantesimo a distanza. Infligge 1d10 danni da forza.", prepared: true },
+                { name: "Cure Wounds", level: 1, school: "Evocazione", castingTime: "1 Azione", range: "Tocco", duration: "Istantanea", components: "V, S", isRitual: false, isConcentration: false, description: "Una creatura che tocchi recupera un numero di punti ferita pari a 1d8 + il tuo modificatore di abilità da incantatore.", prepared: true },
+                { name: "Shield of Faith", level: 1, school: "Abiurazione", castingTime: "1 Azione Bonus", range: "18m", duration: "10 minuti", components: "V, S, M", isRitual: false, isConcentration: true, description: "Una creatura a gittata ottiene un bonus di +2 alla CA per la durata.", prepared: true },
+                { name: "Misty Step", level: 2, school: "Evocazione", castingTime: "1 Azione Bonus", range: "Sé", duration: "Istantanea", components: "V", isRitual: false, isConcentration: false, description: "Ti teletrasporti in uno spazio non occupato che puoi vedere entro 9 metri.", prepared: true },
+                { name: "Find Steed", level: 2, school: "Evocazione", castingTime: "10 minuti", range: "9m", duration: "Istantanea", components: "V, S", isRitual: true, isConcentration: false, description: "Evochi uno spirito che assume la forma di una cavalcatura leale.", prepared: false }
+            ]
+        },
+        imageUrl: "valenor.jpg"
+    };
+    
+    let isEditMode = false;
+    let spellFilter = 'all';
 
   // --- BLOCCO 2: FUNZIONI DI RENDER ---
 
@@ -393,263 +226,129 @@ document.addEventListener("DOMContentLoaded", () => {
       "proficiencies-box"
     ).innerHTML = `<h2>Altre Competenze</h2><h4>Armature</h4><p class="view-item">${c.armor}</p><textarea class="edit-item" data-path="proficiencies.armor">${c.armor}</textarea><h4>Armi</h4><p class="view-item">${c.weapons}</p><textarea class="edit-item" data-path="proficiencies.weapons">${c.weapons}</textarea><h4>Strumenti</h4><p class="view-item">${c.tools}</p><textarea class="edit-item" data-path="proficiencies.tools">${c.tools}</textarea><h4>Linguaggi</h4><p class="view-item">${c.languages}</p><textarea class="edit-item" data-path="proficiencies.languages">${c.languages}</textarea>`;
   }
-  function renderSpells() {
+function renderSpells() {
     const s = characterData.spells;
-    let h = `<h2>Incantesimi</h2><div class="spells-header"><div class="spell-main-stats"><div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${
-      s.ability
-    }</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${
-      s.ability
-    }"></div><div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${
-      s.spellModifier >= 0 ? "+" + s.spellModifier : s.spellModifier
-    }</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${
-      s.spellModifier
-    }"></div><div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${
-      s.saveDC
-    }</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${
-      s.saveDC
-    }"></div><div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${
-      s.attackBonus
-    }</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${
-      s.attackBonus
-    }"></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;"><h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button></div><div id="spell-slots-container"></div><h4>Contatori Speciali</h4><div id="custom-trackers-container"></div><button class="add-btn edit-item" data-type="spells.customTrackers">+</button><h4 style="margin-top:1.5rem;">Lista Incantesimi</h4><div id="spell-filters"></div><div id="spell-card-list"></div><button class="add-btn edit-item" data-type="spells.list">+</button>`;
-    document.getElementById("spells-section-container").innerHTML = h;
-    const slotsContainer = document.getElementById("spell-slots-container");
-    slotsContainer.innerHTML = "";
-    Object.entries(s.slots).forEach(([lvl, data]) => {
-      let slotHTML = `<div class="spell-slot-row"><strong class="slot-label">Livello ${lvl}</strong><div class="tracker-grid">`;
-      for (let i = 0; i < data.total; i++)
-        slotHTML += `<div class="tracker-dot ${
-          i < data.used ? "used" : ""
-        }" data-type="spell" data-level="${lvl}"></div>`;
-      slotsContainer.innerHTML += slotHTML + `</div></div>`;
+    const container = document.getElementById('spells-section-container');
+    const spellModifierValue = s.spellModifier >= 0 ? `+${s.spellModifier}` : s.spellModifier;
+
+    let headerHTML = `<h2>Incantesimi</h2>
+        <div class="spells-header">
+            <div class="spell-main-stats">
+                <div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${s.ability}</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${s.ability}"></div>
+                <div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${spellModifierValue}</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${s.spellModifier}"></div>
+                <div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${s.saveDC}</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${s.saveDC}"></div>
+                <div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${s.attackBonus}</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${s.attackBonus}"></div>
+            </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 1rem;">
+            <h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button>
+        </div>
+        <div id="spell-slots-container"></div>
+        <button class="add-btn edit-item" data-type="spells.slots">+</button>
+        <h4 style="margin-top: 1.5rem;">Contatori Speciali</h4>
+        <div id="custom-trackers-container"></div>
+        <button class="add-btn edit-item" data-type="spells.customTrackers">+</button>
+        <h4 style="margin-top: 1.5rem;">Lista Incantesimi</h4>
+        <div id="spell-filters"></div>
+        <div id="spell-card-list"></div>
+        <button class="add-btn edit-item" data-type="spells.list">+</button>`;
+    container.innerHTML = headerHTML;
+
+    const slotsContainer = document.getElementById('spell-slots-container'); slotsContainer.innerHTML = '';
+    Object.entries(s.slots).forEach(([level, data]) => {
+        let slotHTML = `<div class="spell-slot-row">
+            <strong class="slot-label">Livello ${level}</strong>
+            <div class="edit-item" style="display:flex; align-items:center; gap:0.5rem;">
+                <button class="btn btn-small" data-slot-change="${level}" data-amount="-1">-</button>
+                <span>${data.total}</span>
+                <button class="btn btn-small" data-slot-change="${level}" data-amount="1">+</button>
+            </div>
+            <div class="tracker-grid">`;
+        for(let i=0; i<data.total; i++) slotHTML += `<div class="tracker-dot ${i < data.used ? 'used' : ''}" data-type="spell" data-level="${level}"></div>`;
+        slotsContainer.innerHTML += slotHTML + `</div></div>`;
     });
-    const customTrackersContainer = document.getElementById(
-      "custom-trackers-container"
-    );
-    customTrackersContainer.innerHTML = "";
+    
+    const customTrackersContainer = document.getElementById('custom-trackers-container'); customTrackersContainer.innerHTML = '';
     s.customTrackers.forEach((tracker, index) => {
-      let trackerHTML = `<div class="spell-slot-row"><strong class="slot-label view-item">${tracker.name}</strong><input class="slot-label edit-item" data-path="spells.customTrackers.${index}.name" value="${tracker.name}"><div class="tracker-grid">`;
-      for (let i = 0; i < tracker.max; i++)
-        trackerHTML += `<div class="tracker-dot ${
-          i < tracker.used ? "used" : ""
-        }" data-type="custom" data-index="${index}"></div>`;
-      customTrackersContainer.innerHTML +=
-        trackerHTML +
-        `</div><div class="edit-item" style="text-align:right;"><button class="delete-btn" data-type="spells.customTrackers" data-index="${index}">X</button></div></div>`;
+        let trackerHTML = `<div class="spell-slot-row">
+            <div class="slot-label view-item">${tracker.name}</div>
+            <input class="slot-label edit-item" data-path="spells.customTrackers.${index}.name" value="${tracker.name}">
+            <div class="edit-item" style="display:flex; align-items:center; gap:0.5rem;">
+                <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="-1">-</button>
+                <span>${tracker.max}</span>
+                <button class="btn btn-small" data-custom-tracker-change="${index}" data-amount="1">+</button>
+            </div>
+            <div class="tracker-grid">`;
+        for(let i=0; i<tracker.max; i++) trackerHTML += `<div class="tracker-dot ${i < tracker.used ? 'used' : ''}" data-type="custom" data-index="${index}"></div>`;
+        customTrackersContainer.innerHTML += trackerHTML + `</div><button class="delete-btn edit-item" data-type="spells.customTrackers" data-index="${index}">X</button></div>`;
     });
-    const filtersContainer = document.getElementById("spell-filters");
-    const levels = [...new Set(s.list.map((spell) => spell.level))].sort(
-      (a, b) => a - b
-    );
-    let filtersHTML = `<button class="btn btn-small filter-btn ${
-      spellFilter === "all" ? "active" : ""
-    }" data-filter="all">Tutti</button> <button class="btn btn-small filter-btn ${
-      spellFilter === "prepared" ? "active" : ""
-    }" data-filter="prepared">Preparati</button>`;
-    levels.forEach((level) => {
-      filtersHTML += `<button class="btn btn-small filter-btn ${
-        spellFilter == level ? "active" : ""
-      }" data-filter="${level}">${
-        level === 0 ? "Trucchetti" : `Lvl ${level}`
-      }</button>`;
-    });
-    filtersContainer.innerHTML = filtersHTML;
-    const cardListContainer = document.getElementById("spell-card-list");
-    cardListContainer.innerHTML = "";
-    s.list
-      .filter((spell) => {
-        if (spellFilter === "all") return true;
-        if (spellFilter === "prepared") return spell.prepared;
-        return spell.level == spellFilter;
-      })
-      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
-      .forEach((spell) => {
-        const originalIndex = s.list.findIndex(
-          (s) => s.name === spell.name && s.level === spell.level
-        );
-        let cardHTML = `<div class="spell-card"><div class="spell-card-header" data-card-index="${originalIndex}"><div class="spell-level">${
-          spell.level === 0 ? "C" : spell.level
-        }</div><div class="spell-name view-item">${
-          spell.name
-        }</div><input type="text" class="spell-name edit-item" data-path="spells.list.${originalIndex}.name" value="${
-          spell.name
-        }"><div class="spell-tags">${
-          spell.isConcentration ? '<span class="spell-tag">C</span>' : ""
-        }${
-          spell.isRitual ? '<span class="spell-tag">R</span>' : ""
-        }</div><input type="checkbox" data-prepare-index="${originalIndex}" ${
-          spell.prepared ? "checked" : ""
-        } title="Preparato"></div><div class="spell-card-body"><h5>${
-          spell.school
-        }</h5><div class="spell-details-grid"><div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
-          spell.castingTime
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
-          spell.castingTime
-        }"></div><div class="spell-detail"><label>Gittata</label><p class="view-item">${
-          spell.range
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
-          spell.range
-        }"></div><div class="spell-detail"><label>Durata</label><p class="view-item">${
-          spell.duration
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
-          spell.duration
-        }"></div><div class="spell-detail"><label>Componenti</label><p class="view-item">${
-          spell.components
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
-          spell.components
-        }"></div></div><label>Descrizione</label><p class="view-item">${
-          spell.description
-        }</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
-          spell.description
-        }</textarea><button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button></div></div>`;
+    
+    const filtersContainer = document.getElementById('spell-filters'); const levels = [...new Set(s.list.map(spell => spell.level))].sort((a,b) => a-b); let filtersHTML = `<button class="btn btn-small filter-btn ${spellFilter === 'all' ? 'active' : ''}" data-filter="all">Tutti</button> <button class="btn btn-small filter-btn ${spellFilter === 'prepared' ? 'active' : ''}" data-filter="prepared">Preparati</button>`; levels.forEach(level => { filtersHTML += `<button class="btn btn-small filter-btn ${spellFilter == level ? 'active' : ''}" data-filter="${level}">${level === 0 ? 'Trucchetti' : `Lvl ${level}`}</button>`; }); filtersContainer.innerHTML = filtersHTML;
+    
+    const cardListContainer = document.getElementById('spell-card-list'); cardListContainer.innerHTML = '';
+    s.list.filter(spell => { if (spellFilter === 'all') return true; if (spellFilter === 'prepared') return spell.prepared; return spell.level == spellFilter; }).sort((a, b) => a.level - b.level || a.name.localeCompare(b.name)).forEach((spell) => {
+        const originalIndex = s.list.findIndex(s => s.name === spell.name && s.level === spell.level);
+        let cardHTML = `<div class="spell-card"><div class="spell-card-header" data-card-index="${originalIndex}"><div class="spell-level">${spell.level === 0 ? 'C' : spell.level}</div><div class="spell-name view-item">${spell.name}</div><input type="text" class="spell-name edit-item" data-path="spells.list.${originalIndex}.name" value="${spell.name}"><div class="spell-tags">${spell.isConcentration ? '<span class="spell-tag">C</span>' : ''}${spell.isRitual ? '<span class="spell-tag">R</span>' : ''}</div><input type="checkbox" data-prepare-index="${originalIndex}" ${spell.prepared ? 'checked' : ''} title="Preparato"></div><div class="spell-card-body"><h5>${spell.school}</h5><div class="spell-details-grid"><div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${spell.castingTime}</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${spell.castingTime}"></div><div class="spell-detail"><label>Gittata</label><p class="view-item">${spell.range}</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${spell.range}"></div><div class="spell-detail"><label>Durata</label><p class="view-item">${spell.duration}</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${spell.duration}"></div><div class="spell-detail"><label>Componenti</label><p class="view-item">${spell.components}</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${spell.components}"></div></div><label>Descrizione</label><p class="view-item">${spell.description.replace(/\n/g, '<br>')}</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${spell.description}</textarea><button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button></div></div>`;
         cardListContainer.innerHTML += cardHTML;
-      });
-  }
+    });
+}
 
-  // --- BLOCCO 3: LOGICA INTERATTIVA ---
+// --- BLOCCO 3: LOGICA INTERATTIVA ---
 
-  function handleInteraction(e) {
+function handleInteraction(e) {
     const target = e.target;
-    if (target.matches(".add-btn")) {
-      const type = target.dataset.type;
-      if (type === "attacks") {
-        characterData.attacks.push({
-          name: "Nuovo Attacco",
-          bonus: "+0",
-          damage: "1d4",
-          notes: "",
-        });
-      } else if (type === "equipment") {
-        characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 });
-      } else if (type === "features") {
-        characterData.features.push({
-          name: "Nuovo Privilegio",
-          description: "Descrizione...",
-        });
-      } else if (type === "spells.list") {
-        const name = prompt("Nome del nuovo incantesimo:", "Nuovo Incantesimo");
-        if (!name) return;
-        const level = parseInt(prompt("Livello (0-9):", "1"), 10);
-        const description = prompt("Breve descrizione:", "...");
-        characterData.spells.list.push({
-          level: isNaN(level) ? 1 : level,
-          name: name,
-          description: description,
-          prepared: true,
-          school: "N/A",
-          castingTime: "1 Azione",
-          range: "N/A",
-          duration: "Istantanea",
-          components: "V, S, M",
-          isConcentration: false,
-          isRitual: false,
-        });
-      } else if (type === "spells.customTrackers") {
-        const name = prompt("Nome del contatore:", "Risorsa di Classe");
-        if (!name) return;
-        const max = parseInt(prompt("Numero massimo di utilizzi:", "1"), 10);
-        characterData.spells.customTrackers.push({
-          name: name,
-          max: isNaN(max) ? 1 : max,
-          used: 0,
-        });
-      }
-      renderSheet();
+    if (target.matches('.add-btn')) {
+        const type = target.dataset.type;
+        if (type === 'spells.list') {
+            const name = prompt("Nome del nuovo incantesimo:", "Nuovo Incantesimo");
+            if (!name) return;
+            const level = parseInt(prompt("Livello (0-9):", "1"), 10);
+            const description = prompt("Breve descrizione:", "...");
+            characterData.spells.list.push({ level: isNaN(level) ? 1 : level, name: name, description: description, prepared: true, school: "N/A", castingTime: "1 Azione", range: "N/A", duration: "Istantanea", components: "V, S, M", isConcentration: false, isRitual: false });
+        } else if (type === 'spells.customTrackers') {
+            const name = prompt("Nome del contatore:", "Risorsa di Classe");
+            if(!name) return;
+            const max = parseInt(prompt("Numero massimo di utilizzi:", "1"), 10);
+            characterData.spells.customTrackers.push({ name: name, max: isNaN(max) ? 1 : max, used: 0 });
+        } else if (type === 'spells.slots') {
+            const level = parseInt(prompt("Nuovo livello di incantesimo (es. 3):", "3"), 10);
+            if (level > 0 && level <= 9 && !characterData.spells.slots[level]) {
+                const total = parseInt(prompt(`Quanti slot totali per il livello ${level}?`, "2"), 10);
+                characterData.spells.slots[level] = { total: isNaN(total) ? 2 : total, used: 0 };
+            } else {
+                alert("Livello non valido o già esistente.");
+            }
+        } else if (type === 'attacks') { characterData.attacks.push({ name: "Nuovo Attacco", bonus: "+0", damage: "1d4", notes: "" });
+        } else if (type === 'equipment') { characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 });
+        } else if (type === 'features') { characterData.features.push({ name: "Nuovo Privilegio", description: "Descrizione..." }); }
+        renderSheet();
     }
-    if (target.matches(".delete-btn")) {
-      const type = target.dataset.type;
-      const index = parseInt(target.dataset.index, 10);
-      const list = type.split(".").reduce((o, i) => o[i], characterData);
-      list.splice(index, 1);
-      renderSheet();
-    }
-    if (target.matches(".hit-dice-icon")) {
-      const index = parseInt(target.dataset.index, 10);
-      characterData.hitDice.diceStates[index] =
-        !characterData.hitDice.diceStates[index];
-      renderCombatStats();
-    }
-    if (isEditMode && target.matches("[data-hd-total-change]")) {
-      const change = parseInt(target.dataset.hdTotalChange, 10);
-      const newTotal = Math.max(0, characterData.hitDice.total + change);
-      characterData.hitDice.total = newTotal;
-      while (characterData.hitDice.diceStates.length < newTotal) {
-        characterData.hitDice.diceStates.push(false);
-      }
-      characterData.hitDice.diceStates.length = newTotal;
-      renderCombatStats();
-    }
-    if (isEditMode && target.matches("[data-hd-type-change]")) {
-      characterData.hitDice.type = target.dataset.hdTypeChange;
-      renderCombatStats();
-    }
-    if (target.matches('.tracker-dot[data-type="spell"]')) {
-      const level = target.dataset.level;
-      const slots = characterData.spells.slots[level];
-      if (slots.used < slots.total) {
-        slots.used++;
-      } else {
-        slots.used = 0;
-      }
-      renderSpells();
-    }
-    if (target.matches('.tracker-dot[data-type="custom"]')) {
-      const index = parseInt(target.dataset.index, 10);
-      const tracker = characterData.spells.customTrackers[index];
-      if (tracker.used < tracker.max) {
-        tracker.used++;
-      } else {
-        tracker.used = 0;
-      }
-      renderSpells();
-    }
-    if (target.matches("#long-rest-btn")) {
-      if (confirm("Recuperare tutti gli slot incantesimo e i contatori?")) {
-        for (const level in characterData.spells.slots) {
-          characterData.spells.slots[level].used = 0;
-        }
-        for (const tracker of characterData.spells.customTrackers) {
-          tracker.used = 0;
-        }
+    if (target.matches('.delete-btn')) { const type = target.dataset.type; const index = parseInt(target.dataset.index, 10); const list = type.split('.').reduce((o, i) => o[i], characterData); list.splice(index, 1); renderSheet(); }
+    if (isEditMode && target.matches('[data-slot-change]')) {
+        const level = target.dataset.slotChange;
+        const amount = parseInt(target.dataset.amount, 10);
+        characterData.spells.slots[level].total = Math.max(0, characterData.spells.slots[level].total + amount);
         renderSpells();
-      }
     }
-    if (
-      target.closest(".spell-card-header") &&
-      !e.target.matches("input") &&
-      !e.target.matches(".delete-btn")
-    ) {
-      target.closest(".spell-card").classList.toggle("expanded");
+    if (isEditMode && target.matches('[data-custom-tracker-change]')) {
+        const index = parseInt(target.dataset.customTrackerChange, 10);
+        const amount = parseInt(target.dataset.amount, 10);
+        characterData.spells.customTrackers[index].max = Math.max(0, characterData.spells.customTrackers[index].max + amount);
+        renderSpells();
     }
-    if (target.matches(".filter-btn")) {
-      spellFilter = target.dataset.filter;
-      renderSpells();
-    }
-    if (target.matches('[data-hp-type="temp"]')) {
-      const amount = parseInt(target.dataset.amount, 10);
-      characterData.hp.temp = Math.max(0, characterData.hp.temp + amount);
-      renderCombatStats();
-    }
-    if (target.matches(".skull-icon")) {
-      const type = target.dataset.dsType;
-      const index = parseInt(target.dataset.index, 10);
-      const key = type + "es";
-      characterData.deathSaves[key] =
-        characterData.deathSaves[key] === index + 1 ? index : index + 1;
-      renderCombatStats();
-    }
-    if (target.id === "heal-btn" || target.id === "damage-btn") {
-      const val = parseInt(
-        document.getElementById("hp-change-value").value,
-        10
-      );
-      const isHealing = target.id === "heal-btn";
-      characterData.hp.current = isHealing
-        ? Math.min(characterData.hp.max, characterData.hp.current + val)
-        : Math.max(0, characterData.hp.current - val);
-      renderCombatStats();
-    }
-  }
+    if (target.matches('.tracker-dot[data-type="custom"]')) { const index = parseInt(target.dataset.index, 10); const tracker = characterData.spells.customTrackers[index]; if (tracker.used < tracker.max) { tracker.used++; } else { tracker.used = 0; } renderSpells(); }
+    if (target.matches('#long-rest-btn')) { if(confirm("Recuperare tutti gli slot incantesimo e i contatori?")) { for (const level in characterData.spells.slots) { characterData.spells.slots[level].used = 0; } for (const tracker of characterData.spells.customTrackers) { tracker.used = 0; } renderSpells(); }}
+    // ... (resto della logica handleInteraction rimane invariata)
+    if (target.matches('.hit-dice-icon')) { const index = parseInt(target.dataset.index, 10); characterData.hitDice.diceStates[index] = !characterData.hitDice.diceStates[index]; renderCombatStats(); }
+    if (isEditMode && target.matches('[data-hd-total-change]')) { const change = parseInt(target.dataset.hdTotalChange, 10); const newTotal = Math.max(0, characterData.hitDice.total + change); characterData.hitDice.total = newTotal; while (characterData.hitDice.diceStates.length < newTotal) { characterData.hitDice.diceStates.push(false); } characterData.hitDice.diceStates.length = newTotal; renderCombatStats(); }
+    if (isEditMode && target.matches('[data-hd-type-change]')) { characterData.hitDice.type = target.dataset.hdTypeChange; renderCombatStats(); }
+    if (target.matches('.tracker-dot[data-type="spell"]')) { const level = target.dataset.level; const slots = characterData.spells.slots[level]; if (slots.used < slots.total) { slots.used++; } else { slots.used = 0; } renderSpells(); }
+    if (target.closest('.spell-card-header') && !e.target.matches('input') && !e.target.matches('.delete-btn')) { target.closest('.spell-card').classList.toggle('expanded'); }
+    if (target.matches('.filter-btn')) { spellFilter = target.dataset.filter; renderSpells(); }
+    if (target.matches('[data-hp-type="temp"]')) { const amount = parseInt(target.dataset.amount, 10); characterData.hp.temp = Math.max(0, characterData.hp.temp + amount); renderCombatStats(); }
+    if (target.matches('.skull-icon')) { const type = target.dataset.dsType; const index = parseInt(target.dataset.index, 10); const key = type + 'es'; characterData.deathSaves[key] = (characterData.deathSaves[key] === index + 1) ? index : index + 1; renderCombatStats(); }
+    if (target.id === 'heal-btn' || target.id === 'damage-btn') { const val = parseInt(document.getElementById('hp-change-value').value, 10); const isHealing = target.id === 'heal-btn'; characterData.hp.current = isHealing ? Math.min(characterData.hp.max, characterData.hp.current + val) : Math.max(0, characterData.hp.current - val); renderCombatStats(); }
+}
 
   // --- BLOCCO 4: GESTIONE STATO E SALVATAGGIO ---
 
