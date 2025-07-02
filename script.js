@@ -205,6 +205,68 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSpells();
   }
 
+  function renderCombatStats() {
+    const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
+    document.getElementById(
+      "ac-box"
+    ).innerHTML = `<span class="stat-value view-item">${characterData.ac}</span><input type="number" class="stat-value edit-item" data-path="ac" value="${characterData.ac}"><span class="stat-label">Classe Armatura</span>`;
+    document.getElementById(
+      "initiative-box"
+    ).innerHTML = `<span class="stat-value">${
+      initiative >= 0 ? "+" : ""
+    }${initiative}</span><span class="stat-label">Iniziativa</span>`;
+    document.getElementById(
+      "speed-box"
+    ).innerHTML = `<span class="stat-value view-item">${characterData.speed}</span><input type="text" class="stat-value edit-item" data-path="speed" value="${characterData.speed}"><span class="stat-label">Velocità</span>`;
+    document.getElementById(
+      "hp-box"
+    ).innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
+
+    const hd = characterData.hitDice;
+    const hitDiceBox = document.getElementById("hit-dice-box");
+    hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`;
+    const viewContent = document.createElement("div");
+    viewContent.className = "view-item";
+    let viewHeartsHTML = "";
+    hd.diceStates.forEach((isUsed, index) => {
+      viewHeartsHTML += `<span class="hit-dice-icon ${
+        isUsed ? "used" : ""
+      }" data-type="hd" data-index="${index}">❤️</span>`;
+    });
+    viewContent.innerHTML = `<div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div><div class="tracker-grid">${viewHeartsHTML}</div>`;
+    hitDiceBox.appendChild(viewContent);
+
+    const editContent = document.createElement("div");
+    editContent.className = "edit-item edit-item-controls";
+    let dieTypes = ["d6", "d8", "d10", "d12"];
+    let dieButtonsHTML = "";
+    dieTypes.forEach((type) => {
+      dieButtonsHTML += `<button class="btn btn-small ${
+        hd.type === type ? "active" : ""
+      }" data-hd-type-change="${type}">${type}</button>`;
+    });
+    editContent.innerHTML = `<div class="control-group"><label>Num. Dadi</label><div><button class="btn btn-small" data-hd-total-change="-1">-</button><span style="padding: 0 10px; font-weight: bold;">${hd.total}</span><button class="btn btn-small" data-hd-total-change="1">+</button></div></div><div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieButtonsHTML}</div></div>`;
+    hitDiceBox.appendChild(editContent);
+
+    let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
+    const deathSaves = [
+      ["Successi", "success"],
+      ["Fallimenti", "failure"],
+    ];
+    deathSaves.forEach(([label, type]) => {
+      dsHTML += `<div class="death-save"><span>${label}</span><div class="tracker-grid">`;
+      for (let i = 0; i < 3; i++) {
+        const isToggled = i < characterData.deathSaves[type + "es"];
+        dsHTML += `<span class="skull-icon ${
+          isToggled ? "toggled " + type : ""
+        }" data-type="ds" data-ds-type="${type}" data-index="${i}">💀</span>`;
+      }
+      dsHTML += `</div></div>`;
+    });
+    document.getElementById("death-saves-box").innerHTML = dsHTML;
+  }
+
+  // ... (le altre funzioni di render rimangono qui)
   function renderHeader() {
     const d = characterData;
     document.getElementById(
@@ -262,63 +324,6 @@ document.addEventListener("DOMContentLoaded", () => {
         modifier >= 0 ? "+" : ""
       }${modifier}</div></div>${skillsHTML}</div>`;
     });
-  }
-  function renderCombatStats() {
-    const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
-    document.getElementById(
-      "ac-box"
-    ).innerHTML = `<span class="stat-value view-item">${characterData.ac}</span><input type="number" class="stat-value edit-item" data-path="ac" value="${characterData.ac}"><span class="stat-label">Classe Armatura</span>`;
-    document.getElementById(
-      "initiative-box"
-    ).innerHTML = `<span class="stat-value">${
-      initiative >= 0 ? "+" : ""
-    }${initiative}</span><span class="stat-label">Iniziativa</span>`;
-    document.getElementById(
-      "speed-box"
-    ).innerHTML = `<span class="stat-value view-item">${characterData.speed}</span><input type="text" class="stat-value edit-item" data-path="speed" value="${characterData.speed}"><span class="stat-label">Velocità</span>`;
-    document.getElementById(
-      "hp-box"
-    ).innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
-    const hd = characterData.hitDice;
-    const hitDiceBox = document.getElementById("hit-dice-box");
-    hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`;
-    const viewContent = document.createElement("div");
-    viewContent.className = "view-item";
-    let viewHeartsHTML = "";
-    hd.diceStates.forEach((isUsed, index) => {
-      viewHeartsHTML += `<span class="hit-dice-icon ${
-        isUsed ? "used" : ""
-      }" data-type="hd" data-index="${index}">❤️</span>`;
-    });
-    viewContent.innerHTML = `<div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div><div class="tracker-grid">${viewHeartsHTML}</div>`;
-    hitDiceBox.appendChild(viewContent);
-    const editContent = document.createElement("div");
-    editContent.className = "edit-item edit-item-controls";
-    let dieTypes = ["d6", "d8", "d10", "d12"];
-    let dieButtonsHTML = "";
-    dieTypes.forEach((type) => {
-      dieButtonsHTML += `<button class="btn btn-small ${
-        hd.type === type ? "active" : ""
-      }" data-hd-type-change="${type}">${type}</button>`;
-    });
-    editContent.innerHTML = `<div class="control-group"><label>Num. Dadi</label><div><button class="btn btn-small" data-hd-total-change="-1">-</button><span style="padding: 0 10px; font-weight: bold;">${hd.total}</span><button class="btn btn-small" data-hd-total-change="1">+</button></div></div><div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieButtonsHTML}</div></div>`;
-    hitDiceBox.appendChild(editContent);
-    let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
-    const deathSaves = [
-      ["Successi", "success"],
-      ["Fallimenti", "failure"],
-    ];
-    deathSaves.forEach(([label, type]) => {
-      dsHTML += `<div class="death-save"><span>${label}</span><div class="tracker-grid">`;
-      for (let i = 0; i < 3; i++) {
-        const isToggled = i < characterData.deathSaves[type + "es"];
-        dsHTML += `<span class="skull-icon ${
-          isToggled ? "toggled " + type : ""
-        }" data-type="ds" data-ds-type="${type}" data-index="${i}">💀</span>`;
-      }
-      dsHTML += `</div></div>`;
-    });
-    document.getElementById("death-saves-box").innerHTML = dsHTML;
   }
   function renderAttacks() {
     const c = document.getElementById("attacks-box");
@@ -612,8 +617,7 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 0; i < path.length - 1; i++) {
         obj = obj[path[i]];
       }
-      // Escludo i dati dei Dadi Vita perché li gestiamo solo con i bottoni
-      if (path[0] === "hitDice" && path.length > 1) return;
+      if (path[0] === "hitDice") return;
       const value =
         el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
       obj[path[path.length - 1]] = value;
@@ -657,7 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadedData.hitDice.diceStates = Array(totalDice)
           .fill(false)
           .map((_, i) => i < loadedData.hitDice.used);
-        delete loadedData.hitDice.used;
+        delete loadedData.hitDice.used; // Rimuove la vecchia proprietà
       }
       // Funzione di unione profonda per non perdere nuovi campi nel codice di default
       const merge = (target, source) => {
@@ -715,7 +719,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isEditMode && e.target.matches('[data-path^="abilities."]')) {
       const key = e.target.dataset.path.split(".")[1];
       characterData.abilities[key] = parseInt(e.target.value, 10) || 0;
-      renderAbilities(); // Ri-disegna al volo per aggiornare modificatore e bonus
+      renderAbilities();
     }
   });
 }); // Chiusura del listener DOMContentLoaded
