@@ -8,6 +8,8 @@ let isEditMode = false;
 
 // REPLACE ONLY THIS FUNCTION in js/main.js
 
+// VERSIONE DEFINITIVA E COMPLETA della funzione in js/main.js
+
 function handleInteraction(e) {
   const target = e.target;
   let stateChanged = false;
@@ -23,8 +25,8 @@ function handleInteraction(e) {
   const filterBtn = target.closest(".filter-btn");
   const preparedToggle = target.closest(".prepared-toggle");
   const longRestBtn = target.closest("#long-rest-btn");
-  const addBtn = target.closest(".add-btn"); // Find Add buttons
-  const deleteBtn = target.closest(".delete-btn"); // Find Delete buttons
+  const addBtn = target.closest(".add-btn");
+  const deleteBtn = target.closest(".delete-btn");
   const spellCardHeader = target.closest(".spell-card-header");
 
   if (healBtn || damageBtn) {
@@ -88,17 +90,17 @@ function handleInteraction(e) {
         stateChanged = true;
     }
   }
-  // LOGICA PER I BOTTONI AGGIUNGI (REINSERITA)
   else if (addBtn) {
     const type = addBtn.dataset.type;
     if (type === 'spells.list') { characterData.spells.list.push({ name: "Nuovo Incantesimo", level: 1, school: "N/A", castingTime: "1 Azione", range: "N/A", duration: "Istantanea", components: "V,S,M", description: "", prepared: true }); }
     else if (type === 'spells.slots') { const level = prompt("Nuovo livello di slot (1-9):"); if (level && !characterData.spells.slots[level]) { characterData.spells.slots[level] = { total: 1, used: 0 }; } }
     else if (type === 'spells.customTrackers') { characterData.spells.customTrackers.push({ name: "Nuovo Contatore", max: 1, used: 0 }); }
     else if (type === 'attacks') { characterData.attacks.push({ name: "Nuovo Attacco", bonus: "+0", damage: "1d4", notes: "" }); }
-    // Add more types if needed
+    // LOGICA AGGIUNTA PER COMPLETEZZA
+    else if (type === 'features') { characterData.features.push({ name: "Nuovo Privilegio", description: "Descrizione..." }); }
+    else if (type === 'equipment') { characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 }); }
     stateChanged = true;
   }
-  // LOGICA PER I BOTTONI CANCELLA (REINSERITA)
   else if (deleteBtn) {
     if (confirm("Sei sicuro di voler eliminare questo elemento?")) {
         const type = deleteBtn.dataset.type;

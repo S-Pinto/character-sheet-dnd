@@ -602,3 +602,21 @@
   gap: 0.5rem;
   align-items: center;
 }
+
+/* ----- MEDIA QUERIES PER I COMPONENTI ----- */
+@media (max-width: 768px) {
+  #character-name-display {
+    font-size: 2.5rem; /* Riduci il nome del personaggio */
+  }
+
+  #main-stats-container {
+    flex-direction: column; /* Impila lo scudo e gli altri box */
+    gap: 1rem;
+  }
+
+  .hp-text {
+    font-size: 3rem; /* Riduci il numero degli HP */
+  }
+}
+
+/* --- */

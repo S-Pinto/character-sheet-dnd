@@ -144,3 +144,46 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ----- MEDIA QUERIES PER RESPONSIVE DESIGN ----- */
+
+/* Stile per Tablet (fino a 1024px) */
+@media (max-width: 1024px) {
+  #main-content-grid {
+    /* Passa da tre a due colonne */
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* La colonna sinistra occupa tutta la larghezza */
+  #column-left {
+    grid-column: 1 / -1;
+  }
+
+  #abilities-container {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+/* Stile per Smartphone (fino a 768px) */
+@media (max-width: 768px) {
+  body {
+    padding: 0.5rem; /* Riduci il padding generale */
+  }
+
+  /* L'header si impila in verticale */
+  #main-header-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  #name-and-controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  /* La griglia principale diventa a colonna singola */
+  #main-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
