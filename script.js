@@ -79,20 +79,40 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
     coins: { cp: 0, sp: 0, ep: 0, gp: 15, pp: 0 },
     personality: {
-      appearance: "Aasimar alto e imponente...",
-      backstory: "Ex-caporale degli Evenswords...",
+      appearance:
+        "Aasimar alto e imponente, con capelli bianco-argento e occhi penetranti. Indossa un'armatura ornata bianca e oro.",
+      backstory:
+        "Ex-caporale degli Evenswords, ha stretto un patto con un'entità celestiale dopo aver perso la memoria e le sue certezze, guidato da visioni di un drago argentato.",
     },
     features: [
       {
         name: "Attaccante Selvaggio",
         description:
-          "Una volta per turno, ritiri i dadi di danno e usi il meglio.",
+          "Una volta per turno, quando colpisci con un'arma, puoi ritirare i dadi di danno e usare il risultato migliore.",
       },
-      { name: "Duellare", description: "+2 ai danni con arma a una mano." },
+      {
+        name: "Duellare",
+        description:
+          "Quando impugni un'arma da mischia in una mano e nessun'altra arma, ottieni un bonus di +2 ai tiri per i danni con quell'arma.",
+      },
+      {
+        name: "Percezione Divina",
+        description:
+          "Come azione bonus, percepisci Celestiali, Immondi e Non-morti entro 18m.",
+      },
+      {
+        name: "Imposizione delle Mani",
+        description:
+          "Hai una riserva di 25 Punti Vita (5 x liv. Paladino) per curare.",
+      },
+      {
+        name: "Resistenza Celestiale",
+        description: "Resistenza ai danni necrotici e radianti.",
+      },
     ],
     spells: {
       ability: "Carisma",
-      spellModifier: 2, // Aggiunto
+      spellModifier: 2,
       saveDC: 13,
       attackBonus: 5,
       slots: { 1: { total: 5, used: 0 }, 2: { total: 2, used: 0 } },
@@ -158,6 +178,13 @@ document.addEventListener("DOMContentLoaded", () => {
     imageUrl: "valenor.jpg",
   };
 
+  const SKILL_MAP = {
+    str: ["athletics"],
+    dex: ["acrobatics", "sleightOfHand", "stealth"],
+    int: ["arcana", "history", "investigation", "nature", "religion"],
+    wis: ["animalHandling", "insight", "medicine", "perception", "survival"],
+    cha: ["deception", "intimidation", "performance", "persuasion"],
+  };
   let isEditMode = false;
   let spellFilter = "all";
 
@@ -174,116 +201,86 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSpells();
   }
 
-  function renderSpells() {
-    const s = characterData.spells;
-    const container = document.getElementById("spells-section-container");
-    const spellModifierValue =
-      s.spellModifier >= 0 ? `+${s.spellModifier}` : s.spellModifier;
+  function renderCombatStats() {
+    const initiative = Math.floor((characterData.abilities.dex - 10) / 2);
+    document.getElementById(
+      "ac-box"
+    ).innerHTML = `<span class="stat-value view-item">${characterData.ac}</span><input type="number" class="stat-value edit-item" data-path="ac" value="${characterData.ac}"><span class="stat-label">Classe Armatura</span>`;
+    document.getElementById(
+      "initiative-box"
+    ).innerHTML = `<span class="stat-value">${
+      initiative >= 0 ? "+" : ""
+    }${initiative}</span><span class="stat-label">Iniziativa</span>`;
+    document.getElementById(
+      "speed-box"
+    ).innerHTML = `<span class="stat-value view-item">${characterData.speed}</span><input type="text" class="stat-value edit-item" data-path="speed" value="${characterData.speed}"><span class="stat-label">Velocità</span>`;
+    document.getElementById(
+      "hp-box"
+    ).innerHTML = `<h4>Punti Vita</h4><div id="hp-layout"><div class="hp-current-side"><div class="current-hp-value">${characterData.hp.current}</div><div class="stat-label">Punti Vita Attuali</div><div id="hp-controls"><input type="number" id="hp-change-value" value="1"><button id="heal-btn" class="btn">Cura</button><button id="damage-btn" class="btn">Danno</button></div></div><div class="hp-max-temp-side"><div class="hp-sub-box"><div class="stat-value view-item">${characterData.hp.max}</div><input type="number" class="stat-value edit-item" data-path="hp.max" value="${characterData.hp.max}"><div class="stat-label">HP Massimi</div></div><div class="hp-sub-box"><div class="stat-value">${characterData.hp.temp}</div><div class="stat-label">HP Temporanei</div><div><button class="btn btn-small" data-hp-type="temp" data-amount="-1">-1</button><button class="btn btn-small" data-hp-type="temp" data-amount="1">+1</button></div></div></div></div>`;
 
-    let headerHTML = `<h2>Incantesimi</h2>
-            <div class="spells-header">
-                <div class="spell-main-stats">
-                    <div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${s.ability}</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${s.ability}"></div>
-                    <div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${spellModifierValue}</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${s.spellModifier}"></div>
-                    <div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${s.saveDC}</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${s.saveDC}"></div>
-                    <div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${s.attackBonus}</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${s.attackBonus}"></div>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h4>Slot Incantesimo</h4>
-                <button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button>
-            </div>
-            <div id="spell-slots-container" class="spell-slots-grid"></div>
-            <h4>Lista Incantesimi</h4>
-            <div id="spell-filters"></div>
-            <div id="spell-card-list"></div>
-            <button class="add-btn edit-item" data-type="spells.list">+</button>`;
-    container.innerHTML = headerHTML;
-
-    const slotsContainer = document.getElementById("spell-slots-container");
-    slotsContainer.innerHTML = "";
-    Object.entries(s.slots).forEach(([level, data]) => {
-      let slotHTML = `<div class="spell-slot-level"><h5>Lvl ${level} (${data.used}/${data.total})</h5><div class="tracker-grid">`;
-      for (let i = 0; i < data.total; i++)
-        slotHTML += `<div class="tracker-dot ${
-          i < data.used ? "used" : ""
-        }" data-type="spell" data-level="${level}"></div>`;
-      slotsContainer.innerHTML += slotHTML + `</div></div>`;
+    const hd = characterData.hitDice;
+    const hitDiceBox = document.getElementById("hit-dice-box");
+    hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`;
+    const viewContent = document.createElement("div");
+    viewContent.className = "view-item";
+    let viewHeartsHTML = "";
+    hd.diceStates.forEach((isUsed, index) => {
+      viewHeartsHTML += `<span class="hit-dice-icon ${
+        isUsed ? "used" : ""
+      }" data-type="hd" data-index="${index}">❤️</span>`;
     });
+    viewContent.innerHTML = `<div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hd.type}</div><div class="tracker-grid">${viewHeartsHTML}</div>`;
+    hitDiceBox.appendChild(viewContent);
 
-    const filtersContainer = document.getElementById("spell-filters");
-    const levels = [...new Set(s.list.map((spell) => spell.level))].sort(
-      (a, b) => a - b
-    );
-    let filtersHTML = `<button class="btn btn-small filter-btn ${
-      spellFilter === "all" ? "active" : ""
-    }" data-filter="all">Tutti</button> <button class="btn btn-small filter-btn ${
-      spellFilter === "prepared" ? "active" : ""
-    }" data-filter="prepared">Preparati</button>`;
-    levels.forEach((level) => {
-      filtersHTML += `<button class="btn btn-small filter-btn ${
-        spellFilter == level ? "active" : ""
-      }" data-filter="${level}">${
-        level === 0 ? "Trucchetti" : `Lvl ${level}`
-      }</button>`;
+    const editContent = document.createElement("div");
+    editContent.className = "edit-item edit-item-controls";
+    let dieTypes = ["d6", "d8", "d10", "d12"];
+    let dieButtonsHTML = "";
+    dieTypes.forEach((type) => {
+      dieButtonsHTML += `<button class="btn btn-small ${
+        hd.type === type ? "active" : ""
+      }" data-hd-type-change="${type}">${type}</button>`;
     });
-    filtersContainer.innerHTML = filtersHTML;
+    editContent.innerHTML = `<div class="control-group"><label>Num. Dadi</label><div><button class="btn btn-small" data-hd-total-change="-1">-</button><span style="padding: 0 10px; font-weight: bold;">${hd.total}</span><button class="btn btn-small" data-hd-total-change="1">+</button></div></div><div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieButtonsHTML}</div></div>`;
+    hitDiceBox.appendChild(editContent);
 
-    const cardListContainer = document.getElementById("spell-card-list");
-    cardListContainer.innerHTML = "";
-    s.list
-      .filter((spell) => {
-        if (spellFilter === "all") return true;
-        if (spellFilter === "prepared") return spell.prepared;
-        return spell.level == spellFilter;
-      })
-      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
-      .forEach((spell) => {
-        const originalIndex = s.list.findIndex((s) => s.name === spell.name);
-        let cardHTML = `<div class="spell-card"><div class="spell-card-header" data-card-index="${originalIndex}"><div class="spell-level">${
-          spell.level === 0 ? "C" : spell.level
-        }</div><div class="spell-name view-item">${
-          spell.name
-        }</div><input type="text" class="spell-name edit-item" data-path="spells.list.${originalIndex}.name" value="${
-          spell.name
-        }"><div class="spell-tags">${
-          spell.isConcentration ? '<span class="spell-tag">C</span>' : ""
-        }${
-          spell.isRitual ? '<span class="spell-tag">R</span>' : ""
-        }</div><input type="checkbox" data-prepare-index="${originalIndex}" ${
-          spell.prepared ? "checked" : ""
-        } title="Preparato"></div><div class="spell-card-body"><h5>${
-          spell.school
-        }</h5><div class="spell-details-grid"><div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
-          spell.castingTime
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
-          spell.castingTime
-        }"></div><div class="spell-detail"><label>Gittata</label><p class="view-item">${
-          spell.range
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
-          spell.range
-        }"></div><div class="spell-detail"><label>Durata</label><p class="view-item">${
-          spell.duration
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
-          spell.duration
-        }"></div><div class="spell-detail"><label>Componenti</label><p class="view-item">${
-          spell.components
-        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
-          spell.components
-        }"></div></div><label>Descrizione</label><p class="view-item">${
-          spell.description
-        }</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
-          spell.description
-        }</textarea><button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button></div></div>`;
-        cardListContainer.innerHTML += cardHTML;
-      });
+    let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
+    const deathSaves = [
+      ["Successi", "success"],
+      ["Fallimenti", "failure"],
+    ];
+    deathSaves.forEach(([label, type]) => {
+      dsHTML += `<div class="death-save"><span>${label}</span><div class="tracker-grid">`;
+      for (let i = 0; i < 3; i++) {
+        const isToggled = i < characterData.deathSaves[type + "es"];
+        dsHTML += `<span class="skull-icon ${
+          isToggled ? "toggled " + type : ""
+        }" data-type="ds" data-ds-type="${type}" data-index="${i}">💀</span>`;
+      }
+      dsHTML += `</div></div>`;
+    });
+    document.getElementById("death-saves-box").innerHTML = dsHTML;
   }
 
   function handleInteraction(e) {
     const target = e.target;
     if (target.matches(".add-btn")) {
       const type = target.dataset.type;
-      if (type === "spells.list") {
+      if (type === "attacks") {
+        characterData.attacks.push({
+          name: "Nuovo Attacco",
+          bonus: "+0",
+          damage: "1d4",
+          notes: "",
+        });
+      } else if (type === "equipment") {
+        characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 });
+      } else if (type === "features") {
+        characterData.features.push({
+          name: "Nuovo Privilegio",
+          description: "Descrizione...",
+        });
+      } else if (type === "spells.list") {
         const name = prompt("Nome del nuovo incantesimo:", "Nuovo Incantesimo");
         if (!name) return;
         const level = parseInt(prompt("Livello (0-9):", "1"), 10);
@@ -300,20 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
           components: "V, S, M",
           isConcentration: false,
           isRitual: false,
-        });
-      } else if (type === "attacks") {
-        characterData.attacks.push({
-          name: "Nuovo Attacco",
-          bonus: "+0",
-          damage: "1d4",
-          notes: "",
-        });
-      } else if (type === "equipment") {
-        characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 });
-      } else if (type === "features") {
-        characterData.features.push({
-          name: "Nuovo Privilegio",
-          description: "Descrizione...",
         });
       }
       renderSheet();
@@ -398,8 +381,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Il resto dello script (saveData, loadData, ecc.) è completo e corretto dalla versione precedente.
-  // Per garanzia assoluta, lo includo qui senza modifiche.
   function saveData() {
     document.querySelectorAll("[data-path]").forEach((el) => {
       const path = el.dataset.path.split(".");
@@ -408,8 +389,7 @@ document.addEventListener("DOMContentLoaded", () => {
         obj = obj[path[i]];
       }
       if (path[0] === "hitDice") return;
-      const value =
-        el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
+      let value = el.type === "number" ? parseInt(el.value, 10) || 0 : el.value;
       obj[path[path.length - 1]] = value;
     });
     document.querySelectorAll(".skill-prof.edit-item").forEach((el) => {
@@ -444,20 +424,26 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.classList.toggle("save-btn", isEditMode);
     renderSheet();
   }
+
   function loadData() {
     const savedData = localStorage.getItem("dndCharacterSheet");
     if (savedData) {
       let loadedData = JSON.parse(savedData);
+      // Logica di migrazione per vecchi dati salvati
       if (
         loadedData.hitDice &&
         loadedData.hitDice.used !== undefined &&
         !loadedData.hitDice.diceStates
       ) {
-        loadedData.hitDice.diceStates = Array(loadedData.hitDice.total || 0)
+        const totalDice =
+          parseInt(loadedData.hitDice.total, 10) || characterData.hitDice.total;
+        loadedData.hitDice.diceStates = Array(totalDice)
           .fill(false)
           .map((_, i) => i < loadedData.hitDice.used);
-        delete loadedData.hitDice.used;
+        delete loadedData.hitDice.used; // Rimuove la vecchia proprietà
+        delete loadedData.hitDice.size; // Rimuove la vecchia proprietà
       }
+      // Funzione di unione profonda per non perdere nuovi campi
       const merge = (target, source) => {
         for (const key of Object.keys(source)) {
           if (
@@ -476,6 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
       characterData = merge(characterData, loadedData);
     }
   }
+
   function renderAttacks() {
     const c = document.getElementById("attacks-box");
     let h = `<h2>Attacchi</h2><div id="attacks-container">`;
@@ -531,46 +518,101 @@ document.addEventListener("DOMContentLoaded", () => {
       "proficiencies-box"
     ).innerHTML = `<h2>Altre Competenze</h2><h4>Armature</h4><p class="view-item">${c.armor}</p><textarea class="edit-item" data-path="proficiencies.armor">${c.armor}</textarea><h4>Armi</h4><p class="view-item">${c.weapons}</p><textarea class="edit-item" data-path="proficiencies.weapons">${c.weapons}</textarea><h4>Strumenti</h4><p class="view-item">${c.tools}</p><textarea class="edit-item" data-path="proficiencies.tools">${c.tools}</textarea><h4>Linguaggi</h4><p class="view-item">${c.languages}</p><textarea class="edit-item" data-path="proficiencies.languages">${c.languages}</textarea>`;
   }
-  function renderAbilities() {
-    const container = document.getElementById("abilities-container");
-    container.innerHTML = "";
-    Object.keys(characterData.abilities).forEach((key) => {
-      const score = characterData.abilities[key];
-      const modifier = Math.floor((score - 10) / 2);
-      const isSavingThrowProficient = characterData.savingThrows[key];
-      const savingThrowBonus =
-        modifier +
-        (isSavingThrowProficient ? characterData.proficiencyBonus : 0);
-      let skillsHTML = '<ul class="skill-list">';
-      skillsHTML += `<li style="font-weight: bold; border-bottom: 1px solid var(--c-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem;"><span class="prof-dot view-item ${
-        isSavingThrowProficient ? "proficient" : ""
-      }"></span><input type="checkbox" class="skill-prof edit-item" data-type="save" data-skill="${key}" ${
-        isSavingThrowProficient ? "checked" : ""
-      }><span class="skill-name">Tiro Salvezza</span><strong>${
-        savingThrowBonus >= 0 ? "+" : ""
-      }${savingThrowBonus}</strong></li>`;
-      if (SKILL_MAP[key]) {
-        SKILL_MAP[key].forEach((skillKey) => {
-          const isProficient =
-            characterData.skills[skillKey]?.proficient || false;
-          const skillBonus =
-            modifier + (isProficient ? characterData.proficiencyBonus : 0);
-          skillsHTML += `<li><span class="prof-dot view-item ${
-            isProficient ? "proficient" : ""
-          }"></span><input type="checkbox" class="skill-prof edit-item" data-type="skill" data-skill="${skillKey}" ${
-            isProficient ? "checked" : ""
-          }><span class="skill-name">${
-            skillKey.charAt(0).toUpperCase() + skillKey.slice(1)
-          }</span><strong>${
-            skillBonus >= 0 ? "+" : ""
-          }${skillBonus}</strong></li>`;
-        });
-      }
-      skillsHTML += "</ul>";
-      container.innerHTML += `<div class="ability-box"><div class="ability-header"><h3>${key.toUpperCase()}</h3><div class="ability-score view-item">${score}</div><input type="number" class="ability-score edit-item" data-path="abilities.${key}" value="${score}"><div class="ability-modifier">${
-        modifier >= 0 ? "+" : ""
-      }${modifier}</div></div>${skillsHTML}</div>`;
+  function renderSpells() {
+    const s = characterData.spells;
+    let h = `<h2>Incantesimi</h2><div class="spells-header"><div class="spell-main-stats"><div class="stat-box"><label>Abilità Incantesimi</label><div class="stat-value view-item">${
+      s.ability
+    }</div><input type="text" class="stat-value edit-item" data-path="spells.ability" value="${
+      s.ability
+    }"></div><div class="stat-box"><label>Modificatore Incantesimi</label><div class="stat-value view-item">${
+      s.spellModifier >= 0 ? "+" + s.spellModifier : s.spellModifier
+    }</div><input type="number" class="stat-value edit-item" data-path="spells.spellModifier" value="${
+      s.spellModifier
+    }"></div><div class="stat-box"><label>CD Salvezza Incantesimi</label><div class="stat-value view-item">${
+      s.saveDC
+    }</div><input type="number" class="stat-value edit-item" data-path="spells.saveDC" value="${
+      s.saveDC
+    }"></div><div class="stat-box"><label>Bonus Attacco Incantesimi</label><div class="stat-value view-item">${
+      s.attackBonus
+    }</div><input type="number" class="stat-value edit-item" data-path="spells.attackBonus" value="${
+      s.attackBonus
+    }"></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;"><h4>Slot Incantesimo</h4><button id="long-rest-btn" class="btn btn-small">Riposo Lungo</button></div><div id="spell-slots-container" class="spell-slots-grid"></div><h4>Lista Incantesimi</h4><div id="spell-filters"></div><div id="spell-card-list"></div><button class="add-btn edit-item" data-type="spells.list">+</button>`;
+    document.getElementById("spells-section-container").innerHTML = h;
+    const slotsContainer = document.getElementById("spell-slots-container");
+    slotsContainer.innerHTML = "";
+    Object.entries(s.slots).forEach(([lvl, data]) => {
+      let slotHTML = `<div><h5>Lvl ${lvl} (${data.used}/${data.total})</h5><div class="tracker-grid">`;
+      for (let i = 0; i < data.total; i++)
+        slotHTML += `<div class="tracker-dot ${
+          i < data.used ? "used" : ""
+        }" data-type="spell" data-level="${lvl}"></div>`;
+      slotsContainer.innerHTML += slotHTML + `</div></div>`;
     });
+    const filtersContainer = document.getElementById("spell-filters");
+    const levels = [...new Set(s.list.map((spell) => spell.level))].sort(
+      (a, b) => a - b
+    );
+    let filtersHTML = `<button class="btn btn-small filter-btn ${
+      spellFilter === "all" ? "active" : ""
+    }" data-filter="all">Tutti</button> <button class="btn btn-small filter-btn ${
+      spellFilter === "prepared" ? "active" : ""
+    }" data-filter="prepared">Preparati</button>`;
+    levels.forEach((level) => {
+      filtersHTML += `<button class="btn btn-small filter-btn ${
+        spellFilter == level ? "active" : ""
+      }" data-filter="${level}">${
+        level === 0 ? "Trucchetti" : `Lvl ${level}`
+      }</button>`;
+    });
+    filtersContainer.innerHTML = filtersHTML;
+    const cardListContainer = document.getElementById("spell-card-list");
+    cardListContainer.innerHTML = "";
+    s.list
+      .filter((spell) => {
+        if (spellFilter === "all") return true;
+        if (spellFilter === "prepared") return spell.prepared;
+        return spell.level == spellFilter;
+      })
+      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
+      .forEach((spell) => {
+        const originalIndex = s.list.findIndex((s) => s.name === spell.name);
+        let cardHTML = `<div class="spell-card"><div class="spell-card-header" data-card-index="${originalIndex}"><div class="spell-level">${
+          spell.level === 0 ? "C" : spell.level
+        }</div><div class="spell-name view-item">${
+          spell.name
+        }</div><input type="text" class="spell-name edit-item" data-path="spells.list.${originalIndex}.name" value="${
+          spell.name
+        }"><div class="spell-tags">${
+          spell.isConcentration ? '<span class="spell-tag">C</span>' : ""
+        }${
+          spell.isRitual ? '<span class="spell-tag">R</span>' : ""
+        }</div><input type="checkbox" data-prepare-index="${originalIndex}" ${
+          spell.prepared ? "checked" : ""
+        } title="Preparato"></div><div class="spell-card-body"><h5>${
+          spell.school
+        }</h5><div class="spell-details-grid"><div class="spell-detail"><label>Tempo di Lancio</label><p class="view-item">${
+          spell.castingTime
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.castingTime" value="${
+          spell.castingTime
+        }"></div><div class="spell-detail"><label>Gittata</label><p class="view-item">${
+          spell.range
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.range" value="${
+          spell.range
+        }"></div><div class="spell-detail"><label>Durata</label><p class="view-item">${
+          spell.duration
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.duration" value="${
+          spell.duration
+        }"></div><div class="spell-detail"><label>Componenti</label><p class="view-item">${
+          spell.components
+        }</p><input class="edit-item" data-path="spells.list.${originalIndex}.components" value="${
+          spell.components
+        }"></div></div><label>Descrizione</label><p class="view-item">${
+          spell.description
+        }</p><textarea class="edit-item" data-path="spells.list.${originalIndex}.description">${
+          spell.description
+        }</textarea><button class="delete-btn edit-item" data-type="spells.list" data-index="${originalIndex}">X</button></div></div>`;
+        cardListContainer.innerHTML += cardHTML;
+      });
   }
 
   loadData();
@@ -593,9 +635,6 @@ document.addEventListener("DOMContentLoaded", () => {
         characterData.skills[key].proficient = e.target.checked;
       }
       renderAbilities();
-    }
-    if (e.target.matches('[data-type^="ds-"]')) {
-      handleInteraction(e);
     }
     if (e.target.matches("[data-prepare-index]")) {
       const index = parseInt(e.target.dataset.prepareIndex, 10);
