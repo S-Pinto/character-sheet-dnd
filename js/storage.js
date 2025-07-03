@@ -27,15 +27,18 @@ export async function loadData() {
       return JSON.parse(savedData);
     }
 
-    const response = await fetch("data/valenor.json");
+    // PERCORSO CORRETTO: relativo alla posizione di index.html
+    const response = await fetch("data/valenor.json"); 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+    const characterData = await response.json();
     console.log("Dati caricati dal file JSON di default.");
-    return await response.json();
+    return characterData;
+
   } catch (error) {
     console.error("Impossibile caricare i dati del personaggio:", error);
-    // Fallback a un oggetto vuoto per evitare che l'app si rompa
-    return {};
+    alert("Errore: impossibile caricare i dati di base del personaggio.");
+    return {}; // Ritorna un oggetto vuoto per evitare che l'app si rompa
   }
 }
