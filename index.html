@@ -3,28 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scheda Personaggio D&D - Valenor</title>
+    <title>Runica - Scheda D&D</title>
+    
+    <link rel="icon" type="image/png" href="img/icon-192.png">
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="icon" type="image/png" href="img/icon-192.png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
+    <nav id="main-navbar">
+        <div class="navbar-content">
+            <h1 class="navbar-title">Runica</h1>
+            <div id="navbar-shortcuts">
+                <a href="#abilities-container">Abilità</a>
+                <a href="#main-content-grid">Combattimento</a>
+                <a href="#features-box">Talenti</a>
+                <a href="#spells-section-container">Incantesimi</a>
+            </div>
+            <div id="controls-container">
+                <span id="save-feedback"></span>
+                <button id="edit-mode-btn" class="btn">Modifica Scheda</button>
+            </div>
+        </div>
+    </nav>
+
     <div class="container" id="character-sheet">
+        
         <header id="main-header-grid">
             <div id="portrait-container"></div>
             <div id="header-info-container">
                 <div id="name-and-controls">
                     <h1 id="character-name-display"></h1>
-                    <div id="controls-container">
-                        <span id="save-feedback"></span>
-                        <button id="edit-mode-btn" class="btn">Modifica Scheda</button>
                     </div>
-                </div>
                 <div id="details-grid"></div>
             </div>
         </header>
@@ -36,34 +51,33 @@
                 <div id="proficiencies-box" class="box"></div>
             </div>
             <div id="column-center">
-                <div id="main-stats-container"></div> <div id="hp-box" class="box"></div> <div class="resources-grid"> <div id="hit-dice-box" class="box"></div>
-                    <div id="death-saves-box" class="box"></div>
-                </div>
+                <div id="main-stats-container"></div>
+                <div id="hp-box" class="box"></div>
                 <div id="attacks-box" class="box"></div>
             </div>
             <div id="column-right">
-                 <div id="features-box" class="box"></div>
-                 <div id="equipment-box" class="box"></div>
-                 <div id="personality-box" class="box"></div>
+                <div id="features-box" class="box"></div>
+                <div id="equipment-box" class="box"></div>
+                <div id="personality-box" class="box"></div>
             </div>
         </main>
         
         <section id="spells-section-container" class="box">
         </section>
+
     </div>
     
     <script src="js/main.js" type="module"></script>
-
     <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then(registration => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      }, err => {
-        console.log('ServiceWorker registration failed: ', err);
-      });
-    });
-  }
-</script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').then(registration => {
+            console.log('PWA: Service Worker registrato con successo.');
+          }, err => {
+            console.error('PWA: Registrazione Service Worker fallita:', err);
+          });
+        });
+      }
+    </script>
 </body>
 </html>

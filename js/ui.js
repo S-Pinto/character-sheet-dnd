@@ -1,4 +1,4 @@
-// js/ui.js - VERSIONE FINALE E CORRETTA
+// js/ui.js
 
 const SKILL_MAP = {
   str: ["athletics"],
@@ -30,8 +30,7 @@ export function renderSheet(characterData) {
   renderKeyStats(characterData);
   renderAbilities(characterData);
   renderMainStats(characterData);
-  renderHealth(characterData.hp);
-  renderResources(characterData.hitDice, characterData.deathSaves);
+  renderHealthComponent(characterData);
   renderAttacks(characterData.attacks);
   renderEquipment(characterData.equipment, characterData.coins);
   renderPersonality(characterData.personality);
@@ -72,22 +71,20 @@ function renderAbilities({ abilities, savingThrows, skills, proficiencyBonus }) 
   });
 }
 
+// in js/ui.js
 function renderMainStats({ abilities, ac, speed }) {
     const initiative = Math.floor((abilities.dex - 10) / 2);
     const container = document.getElementById("main-stats-container");
     if (!container) return;
 
-    // Codice SVG con le coordinate Y invertite per testo e valore
+    // Corretto il viewBox per usare le coordinate corrette dello scudo
     const shieldSVG = `
         <div class="ac-shield-container">
             <svg class="ac-shield-svg" viewBox="-5 -5 110 120">
                 <path class="shield-path" d="M 50,0 L 100,10 L 95,60 C 95,90 50,110 50,110 C 50,110 5,90 5,60 L 0,10 Z" />
-                
                 <text x="50" y="20" text-anchor="middle" class="shield-text-label">CLASSE</text>
                 <text x="50" y="32" text-anchor="middle" class="shield-text-label">ARMATURA</text>
-
                 <text x="50" y="80" text-anchor="middle" class="shield-text-value">${ac}</text>
-
             </svg>
             <div class="edit-item">
                  <input type="number" class="stat-value" data-path="ac" value="${ac}">
@@ -96,104 +93,60 @@ function renderMainStats({ abilities, ac, speed }) {
 
     const initiativeBox = `<div class="flanking-stat-box"><span class="stat-label">Iniziativa</span><span class="stat-value">${initiative >= 0 ? "+" : ""}${initiative}</span></div>`;
     const speedBox = `<div class="flanking-stat-box"><span class="stat-label">Velocità</span><span class="stat-value view-item">${speed}</span><input type="text" class="stat-value edit-item" data-path="speed" value="${speed}"></div>`;
-    
+
     container.innerHTML = initiativeBox + shieldSVG + speedBox;
 }
 
-// REPLACE ONLY THIS FUNCTION in js/ui.js
-
-// SOSTITUISCI SOLO QUESTA FUNZIONE in js/ui.js
-
-// SOSTITUISCI SOLO QUESTA FUNZIONE in js/ui.js
-
-function renderHealth(hp) {
+function renderHealthComponent(characterData) {
+    const { hp, hitDice, deathSaves } = characterData;
     const container = document.getElementById("hp-box");
     if (!container) return;
 
     const hpPercent = (hp.max > 0) ? (hp.current / hp.max) * 100 : 0;
     const tempHpPercent = (hp.max > 0) ? (hp.temp / hp.max) * 100 : 0;
+    let barColor = hpPercent > 50 ? "var(--c-success)" : hpPercent > 25 ? "#f39c12" : "var(--c-danger)";
 
-    let barColor;
-    if (hpPercent > 50) { barColor = "var(--c-success)"; }
-    else if (hpPercent > 25) { barColor = "#f39c12"; }
-    else { barColor = "var(--c-danger)"; }
-
-    container.innerHTML = `
-    <div class="hp-container">
-        <h4>Punti Ferita</h4>
-
-        <div class="hp-sub-stats">
-             <div>
-                HP Massimi: 
-                <span class="view-item">${hp.max}</span>
-                <input type="number" class="edit-item" data-path="hp.max" value="${hp.max}" style="width: 60px; text-align: center;">
-             </div>
-        </div>
-
-        <div class="hp-display">
-            <svg class="hp-heart-icon" viewBox="-2 -2 28 28">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-            <span class="hp-text">${hp.current}</span>
-        </div>
-
-        <div class="hp-bar-container">
-            <div class="hp-bar-fill" style="width: ${hpPercent}%; background-color: ${barColor};"></div>
-        </div>
-        
-        <div class="hp-sub-stats" style="margin-top: 0.5rem;">
-            <div class="temp-hp-container">
-                HP Temporanei: <span>${hp.temp}</span>
-                <div class="temp-hp-controls">
-                    <button class="btn-small" data-hp-type="temp" data-amount="-1">-</button>
-                    <button class="btn-small" data-hp-type="temp" data-amount="1">+</button>
-                </div>
+    const hitDiceHTML = `
+        <div class="hit-dice-panel">
+            <h5>Dadi Vita</h5>
+            <div class="view-item">
+                <div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Totali: ${hitDice.total}${hitDice.type}</div>
+                <div class="tracker-grid">${hitDice.diceStates.map((isUsed, index) => `<span class="hit-dice-icon ${isUsed ? 'used' : ''}" data-type="hd" data-index="${index}">🩸</span>`).join('')}</div>
             </div>
-        </div>
+            <div class="edit-item edit-item-controls">
+                <div class="control-group"><label>Num. Dadi</label><div><button class="btn btn-small" data-hd-total-change="-1">-</button><span style="padding: 0 10px; font-weight: bold;">${hitDice.total}</span><button class="btn btn-small" data-hd-total-change="1">+</button></div></div>
+                <div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${['d6', 'd8', 'd10', 'd12'].map(type => `<button class="btn btn-small ${hitDice.type === type ? 'active' : ''}" data-hd-type-change="${type}">${type}</button>`).join('')}</div></div>
+            </div>
+        </div>`;
 
-        <div class="temp-hp-bar-container">
-            <div class="temp-hp-bar-fill" style="width: ${tempHpPercent}%;"></div>
+    const deathSavesHTML = `
+        <div class="death-saves-panel">
+            <h5>Tiri Salvezza vs Morte</h5>
+            <div class="death-save-trackers">
+                ${[["Successi", "success", deathSaves.successes], ["Fallimenti", "failure", deathSaves.failures]].map(([label, type, count]) => `
+                    <div class="death-save-row">
+                        <span class="ds-label">${label}</span>
+                        <div class="tracker-grid">${[...Array(3)].map((_, i) => `<span class="skull-icon ${i < count ? "toggled " + type : ""}" data-type="ds" data-ds-type="${type}" data-index="${i}">💀</span>`).join('')}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+        
+    container.innerHTML = `
+    <div class="health-container">
+        <h4>Punti Ferita</h4>
+        <div class="hp-sub-stats"><div>HP Massimi: <span class="view-item">${hp.max}</span><input type="number" class="edit-item" data-path="hp.max" value="${hp.max}" style="width: 60px; text-align: center;"></div></div>
+        <div class="hp-display"><svg class="hp-heart-icon" viewBox="-2 -2 28 28"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span class="hp-text">${hp.current}</span></div>
+        <div class="hp-bar-container"><div class="hp-bar-fill" style="width: ${hpPercent}%; background-color: ${barColor};"></div></div>
+        <div class="hp-sub-stats" style="margin-top: 0.5rem;"><div class="temp-hp-container">HP Temporanei: <span>${hp.temp}</span><div class="temp-hp-controls"><button class="btn-small" data-hp-type="temp" data-amount="-1">-</button><button class="btn-small" data-hp-type="temp" data-amount="1">+</button></div></div></div>
+        <div class="temp-hp-bar-container"><div class="temp-hp-bar-fill" style="width: ${tempHpPercent}%;"></div></div>
+        <div class="sub-resources-grid">
+            ${hitDiceHTML}
+            ${deathSavesHTML}
         </div>
-
-        <div class="hp-controls">
-            <button id="damage-btn" class="hp-control-btn damage" title="Danno">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" transform="rotate(45 12 12)"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-            </button>
-            <input type="number" id="hp-change-value" value="1" min="1">
-            <button id="heal-btn" class="hp-control-btn heal" title="Cura">
-                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 .98.22 1.91.62 2.75L12 21.35l9.38-10.1C21.78 10.41 22 9.48 22 8.5 22 5.42 19.58 3 16.5 3zM18 10h-3V7h-2v3h-3v2h3v3h2v-3h3v-2z"/></svg>
-            </button>
-        </div>
-    </div>`;
-}
-
-function renderResources(hitDice, deathSaves) {
-    const hitDiceBox = document.getElementById("hit-dice-box");
-    if (hitDiceBox) {
-        hitDiceBox.innerHTML = `<h4>Dadi Vita</h4>`;
-        const viewContent = document.createElement("div");
-        viewContent.className = "view-item";
-        let viewHeartsHTML = "";
-        hitDice.diceStates.forEach((isUsed, index) => {
-            viewHeartsHTML += `<span class="hit-dice-icon ${isUsed ? "used" : ""}" data-type="hd" data-index="${index}">❤️</span>`;
-        });
-        viewContent.innerHTML = `<div style="text-align:center; color: var(--c-label); margin-bottom: 1rem;">Lancia 1${hitDice.type}</div><div class="tracker-grid">${viewHeartsHTML}</div>`;
-        hitDiceBox.appendChild(viewContent);
-        const editContent = document.createElement("div");
-        editContent.className = "edit-item edit-item-controls";
-        let dieTypes = ["d6", "d8", "d10", "d12"];
-        editContent.innerHTML = `<div class="control-group"><label>Num. Dadi</label><div><button class="btn btn-small" data-hd-total-change="-1">-</button><span style="padding: 0 10px; font-weight: bold;">${hitDice.total}</span><button class="btn btn-small" data-hd-total-change="1">+</button></div></div><div class="control-group"><label>Tipo Dado</label><div class="die-type-buttons">${dieTypes.map(type => `<button class="btn btn-small ${hitDice.type === type ? "active" : ""}" data-hd-type-change="${type}">${type}</button>`).join('')}</div></div>`;
-        hitDiceBox.appendChild(editContent);
-    }
-    const deathSavesBox = document.getElementById("death-saves-box");
-    if (deathSavesBox) {
-        let dsHTML = `<h4>Tiri Salvezza vs Morte</h4>`;
-        const deathSavesData = [["Successi", "success", deathSaves.successes], ["Fallimenti", "failure", deathSaves.failures]];
-        deathSavesData.forEach(([label, type, count]) => {
-            dsHTML += `<div class="death-save"><span>${label}</span><div class="tracker-grid">${[...Array(3)].map((_, i) => `<span class="skull-icon ${i < count ? "toggled " + type : ""}" data-type="ds" data-ds-type="${type}" data-index="${i}">💀</span>`).join('')}</div></div>`;
-        });
-        deathSavesBox.innerHTML = dsHTML;
-    }
+        <div class="hp-controls"><button id="damage-btn" class="hp-control-btn damage" title="Danno"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" transform="rotate(45 12 12)"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></button><input type="number" id="hp-change-value" value="1" min="1"><button id="heal-btn" class="hp-control-btn heal" title="Cura"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 .98.22 1.91.62 2.75L12 21.35l9.38-10.1C21.78 10.41 22 9.48 22 8.5 22 5.42 19.58 3 16.5 3zM18 10h-3V7h-2v3h-3v2h3v3h2v-3h3v-2z"/></svg></button></div>
+    </div>
+    `;
 }
 
 function renderAttacks(attacks) {
@@ -218,7 +171,6 @@ function renderFeatures(features) {
 function renderProficiencies({ armor, weapons, tools, languages }) {
     document.getElementById("proficiencies-box").innerHTML = `<h2>Altre Competenze</h2><h4>Armature</h4><p class="view-item">${armor}</p><textarea class="edit-item" data-path="proficiencies.armor">${armor}</textarea><h4>Armi</h4><p class="view-item">${weapons}</p><textarea class="edit-item" data-path="proficiencies.weapons">${weapons}</textarea><h4>Strumenti</h4><p class="view-item">${tools}</p><textarea class="edit-item" data-path="proficiencies.tools">${tools}</textarea><h4>Linguaggi</h4><p class="view-item">${languages}</p><textarea class="edit-item" data-path="proficiencies.languages">${languages}</textarea>`;
 }
-
 
 export function renderSpells(s) {
     const container = document.getElementById("spells-section-container");

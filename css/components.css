@@ -620,3 +620,173 @@
 }
 
 /* --- */
+/* AGGIUNGI ALLA FINE di css/components.css */
+
+/* ----- STILI PER LA BARRA DI NAVIGAZIONE ----- */
+#main-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--c-surface);
+  border-bottom: 2px solid var(--c-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  padding: 0 1.5rem;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1600px;
+  margin: auto;
+  height: 60px;
+}
+
+.navbar-title {
+  font-family: var(--font-header);
+  font-size: 2rem;
+  color: var(--c-secondary);
+  margin: 0;
+}
+
+#navbar-shortcuts a {
+  color: var(--c-label);
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0 1rem;
+  transition: color 0.2s;
+}
+
+#navbar-shortcuts a:hover {
+  color: var(--c-text);
+  text-shadow: 0 0 5px var(--c-secondary);
+}
+
+/* Nascondiamo le shortcut su schermi piccoli per non affollare la barra */
+@media (max-width: 1024px) {
+  #navbar-shortcuts {
+    display: none;
+  }
+}
+
+/* AGGIUNGI ALLA FINE di css/components.css */
+
+.health-resources-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--c-border);
+}
+
+.hit-dice-panel, .death-saves-panel {
+  padding: 1rem;
+  background-color: var(--c-surface-light);
+  border-radius: var(--border-radius);
+}
+
+.hit-dice-panel h4, .death-saves-panel h4 {
+  margin: 0 0 1rem 0;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--c-label);
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--c-border);
+  padding-bottom: 0.5rem;
+}
+
+.hit-dice-icon {
+  font-size: 1.5rem;
+  user-select: none;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+.hit-dice-icon.used {
+  opacity: 1;
+  text-shadow: 0 0 8px var(--c-danger);
+}
+
+.death-save-trackers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.death-save-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* AGGIUNGI ALLA FINE di css/components.css */
+
+/* Stili per il nuovo componente unificato della salute */
+.health-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem; /* Aumentiamo un po' lo spazio per chiarezza */
+}
+
+/* Griglia per Dadi Vita e Tiri Salvezza */
+.sub-resources-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--c-border);
+}
+
+.hit-dice-panel, .death-saves-panel {
+  background-color: var(--c-surface-light);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+}
+
+.hit-dice-panel h5, .death-saves-panel h5 {
+  margin: 0 0 1rem 0;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--c-label);
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--c-border);
+  padding-bottom: 0.5rem;
+}
+
+.hit-dice-icon {
+  font-size: 1.5rem;
+  user-select: none;
+  cursor: pointer;
+  color: var(--c-danger);
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+
+.hit-dice-icon.used {
+  opacity: 1;
+  text-shadow: 0 0 8px var(--c-danger);
+}
+
+.death-save-trackers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.death-save-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ds-label {
+    font-size: 0.9em;
+    font-weight: bold;
+}

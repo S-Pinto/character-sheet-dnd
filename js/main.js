@@ -1,20 +1,13 @@
-// SOSTITUISCI L'INTERO FILE js/main.js CON QUESTO
-
 import { loadData, saveData } from "./storage.js";
 import * as ui from "./ui.js";
 
 let characterData = {};
 let isEditMode = false;
 
-// REPLACE ONLY THIS FUNCTION in js/main.js
-
-// VERSIONE DEFINITIVA E COMPLETA della funzione in js/main.js
-
 function handleInteraction(e) {
   const target = e.target;
   let stateChanged = false;
 
-  // Use .closest() to robustly find the clicked element or its parent
   const healBtn = target.closest("#heal-btn");
   const damageBtn = target.closest("#damage-btn");
   const tempHpBtn = target.closest("[data-hp-type='temp']");
@@ -22,12 +15,10 @@ function handleInteraction(e) {
   const deathSaveIcon = target.closest(".skull-icon");
   const spellTracker = target.closest('.tracker-dot[data-type="spell"]');
   const customTracker = target.closest('.tracker-dot[data-type="custom"]');
-  const filterBtn = target.closest(".filter-btn");
-  const preparedToggle = target.closest(".prepared-toggle");
   const longRestBtn = target.closest("#long-rest-btn");
+  const preparedToggle = target.closest(".prepared-toggle");
   const addBtn = target.closest(".add-btn");
   const deleteBtn = target.closest(".delete-btn");
-  const spellCardHeader = target.closest(".spell-card-header");
 
   if (healBtn || damageBtn) {
     const val = parseInt(document.getElementById("hp-change-value").value, 10);
@@ -62,7 +53,7 @@ function handleInteraction(e) {
   }
   else if (deathSaveIcon) {
     const type = deathSaveIcon.dataset.dsType;
-    const key = type + "es";
+    const key = type === 'success' ? 'successes' : 'failures';
     const index = parseInt(deathSaveIcon.dataset.index, 10);
     characterData.deathSaves[key] = (characterData.deathSaves[key] === index + 1) ? index : index + 1;
     stateChanged = true;
@@ -73,14 +64,16 @@ function handleInteraction(e) {
     slots.used = (slots.used < slots.total) ? slots.used + 1 : 0;
     stateChanged = true;
   }
-   else if (customTracker) {
+  else if (customTracker) {
     const index = parseInt(customTracker.dataset.index, 10);
     const tracker = characterData.spells.customTrackers[index];
     tracker.used = (tracker.used < tracker.max) ? tracker.used + 1 : 0;
     stateChanged = true;
   }
   else if (longRestBtn) {
-    if (confirm("Recuperare tutti gli slot incantesimo e le cariche dei contatori speciali?")) {
+    if (confirm("Recuperare tutti gli slot incantesimo, gli hp e metà dei dadi vita?")) {
+        characterData.hp.current = characterData.hp.max;
+        characterData.hitDice.diceStates.fill(false);
         for (const level in characterData.spells.slots) {
             characterData.spells.slots[level].used = 0;
         }
@@ -90,13 +83,19 @@ function handleInteraction(e) {
         stateChanged = true;
     }
   }
+  else if (preparedToggle) {
+    const index = parseInt(preparedToggle.dataset.prepareIndex, 10);
+    if (characterData.spells.list[index]) {
+        characterData.spells.list[index].prepared = !characterData.spells.list[index].prepared;
+        stateChanged = true;
+    }
+  }
   else if (addBtn) {
     const type = addBtn.dataset.type;
     if (type === 'spells.list') { characterData.spells.list.push({ name: "Nuovo Incantesimo", level: 1, school: "N/A", castingTime: "1 Azione", range: "N/A", duration: "Istantanea", components: "V,S,M", description: "", prepared: true }); }
     else if (type === 'spells.slots') { const level = prompt("Nuovo livello di slot (1-9):"); if (level && !characterData.spells.slots[level]) { characterData.spells.slots[level] = { total: 1, used: 0 }; } }
     else if (type === 'spells.customTrackers') { characterData.spells.customTrackers.push({ name: "Nuovo Contatore", max: 1, used: 0 }); }
     else if (type === 'attacks') { characterData.attacks.push({ name: "Nuovo Attacco", bonus: "+0", damage: "1d4", notes: "" }); }
-    // LOGICA AGGIUNTA PER COMPLETEZZA
     else if (type === 'features') { characterData.features.push({ name: "Nuovo Privilegio", description: "Descrizione..." }); }
     else if (type === 'equipment') { characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 }); }
     stateChanged = true;
@@ -114,23 +113,19 @@ function handleInteraction(e) {
         stateChanged = true;
     }
   }
-  else if (filterBtn) {
-    ui.setSpellFilter(filterBtn.dataset.filter);
-    ui.renderSpells(characterData.spells);
-  }
-  else if (preparedToggle) {
-    const index = parseInt(preparedToggle.dataset.prepareIndex, 10);
-    if (characterData.spells.list[index]) {
-        characterData.spells.list[index].prepared = !characterData.spells.list[index].prepared;
-        preparedToggle.classList.toggle("prepared");
-    }
-  }
-  else if (spellCardHeader) {
-    spellCardHeader.parentElement.classList.toggle("expanded");
-  }
 
   if (stateChanged) {
+    saveData(characterData);
     ui.renderSheet(characterData);
+  }
+
+  const filterBtn = target.closest(".filter-btn");
+  const spellCardHeader = target.closest(".spell-card-header");
+  if (filterBtn) {
+    ui.setSpellFilter(filterBtn.dataset.filter);
+    ui.renderSpells(characterData.spells);
+  } else if (spellCardHeader && !addBtn && !deleteBtn && !preparedToggle) {
+      spellCardHeader.parentElement.classList.toggle("expanded");
   }
 }
 
@@ -160,8 +155,30 @@ function toggleEditMode() {
   ui.renderSheet(characterData);
 }
 
+function setupSmoothScrolling() {
+  document.querySelectorAll('#navbar-shortcuts a').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      
+      const targetId = this.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+}
+
 async function init() {
+  setupSmoothScrolling();
+  
   characterData = await loadData();
+  console.log("--- STATO INIZIALE CARICATO ---", JSON.parse(JSON.stringify(characterData)));
+
   ui.setEditMode(isEditMode);
   ui.renderSheet(characterData);
 
@@ -173,6 +190,7 @@ async function init() {
       const key = e.target.dataset.path.split(".")[1];
       characterData.abilities[key] = parseInt(e.target.value, 10) || 0;
       ui.renderSheet(characterData);
+      saveData(characterData);
     }
   });
 }

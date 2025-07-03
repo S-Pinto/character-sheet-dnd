@@ -187,3 +187,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+/*
+  Questa regola dice al browser: quando devi scorrere verso uno di questi elementi,
+  lascia un margine di 80px sopra di esso.
+*/
+#abilities-container,
+#main-content-grid,
+#features-box,
+#spells-section-container {
+  scroll-margin-top: 80px;
+}
