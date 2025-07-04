@@ -1,198 +1,171 @@
 import { loadData, saveData } from "./storage.js";
-import * as ui from "./ui.js";
 
-let characterData = {};
-let isEditMode = false;
+// In js/main.js, sostituisci il vecchio oggetto App con questo
 
-function handleInteraction(e) {
-  const target = e.target;
-  let stateChanged = false;
+const App = {
+  // Dati dell'applicazione
+  data() {
+    return {
+      characterData: null, // Verrà caricato da storage.js
+      isEditMode: false,
+      damageHealAmount: 1, // Valore per l'input di danno/cura
+      SKILL_MAP: {
+          str: ["athletics"],
+          dex: ["acrobatics", "sleightOfHand", "stealth"],
+          int: ["arcana", "history", "investigation", "nature", "religion"],
+          wis: ["animalHandling", "insight", "medicine", "perception", "survival"],
+          cha: ["deception", "intimidation", "performance", "persuasion"],
+      }
+      
+    }
+  },
 
-  const healBtn = target.closest("#heal-btn");
-  const damageBtn = target.closest("#damage-btn");
-  const tempHpBtn = target.closest("[data-hp-type='temp']");
-  const hitDiceIcon = target.closest(".hit-dice-icon");
-  const deathSaveIcon = target.closest(".skull-icon");
-  const spellTracker = target.closest('.tracker-dot[data-type="spell"]');
-  const customTracker = target.closest('.tracker-dot[data-type="custom"]');
-  const longRestBtn = target.closest("#long-rest-btn");
-  const preparedToggle = target.closest(".prepared-toggle");
-  const addBtn = target.closest(".add-btn");
-  const deleteBtn = target.closest(".delete-btn");
+  // Proprietà calcolate: valori che dipendono da altri dati
+  computed: {
+    hpPercent() {
+      if (!this.characterData || this.characterData.hp.max === 0) return 0;
+      return (this.characterData.hp.current / this.characterData.hp.max) * 100;
+    },
+    tempHpPercent() {
+        if (!this.characterData || this.characterData.hp.max === 0) return 0;
+        return (this.characterData.hp.temp / this.characterData.hp.max) * 100;
+    },
+    barColor() {
+      if (this.hpPercent > 50) return "var(--c-success)";
+      if (this.hpPercent > 25) return "#f39c12";
+      return "var(--c-danger)";
+    },
+    initiative() {
+        if (!this.characterData) return 0;
+        return Math.floor((this.characterData.abilities.dex - 10) / 2);
+    }
+  },
 
-  if (healBtn || damageBtn) {
-    const val = parseInt(document.getElementById("hp-change-value").value, 10);
-    if (damageBtn) {
-      let damageToDeal = val;
-      if (characterData.hp.temp > 0) {
-        if (damageToDeal <= characterData.hp.temp) {
-          characterData.hp.temp -= damageToDeal;
+  // Metodi: le funzioni che possiamo chiamare dal nostro HTML
+  methods: {
+    save() {
+        // Un unico metodo per salvare, così non ci ripetiamo
+        saveData(this.characterData);
+    },
+    applyDamage() {
+      let damageToDeal = this.damageHealAmount;
+      if (this.characterData.hp.temp > 0) {
+        if (damageToDeal <= this.characterData.hp.temp) {
+          this.characterData.hp.temp -= damageToDeal;
           damageToDeal = 0;
         } else {
-          damageToDeal -= characterData.hp.temp;
-          characterData.hp.temp = 0;
+          damageToDeal -= this.characterData.hp.temp;
+          this.characterData.hp.temp = 0;
         }
       }
       if (damageToDeal > 0) {
-        characterData.hp.current = Math.max(0, characterData.hp.current - damageToDeal);
+        this.characterData.hp.current = Math.max(0, this.characterData.hp.current - damageToDeal);
       }
-    } else {
-      characterData.hp.current = Math.min(characterData.hp.max, characterData.hp.current + val);
-    }
-    stateChanged = true;
-  }
-  else if (tempHpBtn) {
-    const amount = parseInt(tempHpBtn.dataset.amount, 10);
-    characterData.hp.temp = Math.max(0, characterData.hp.temp + amount);
-    stateChanged = true;
-  }
-  else if (hitDiceIcon) {
-    const index = parseInt(hitDiceIcon.dataset.index, 10);
-    characterData.hitDice.diceStates[index] = !characterData.hitDice.diceStates[index];
-    stateChanged = true;
-  }
-  else if (deathSaveIcon) {
-    const type = deathSaveIcon.dataset.dsType;
-    const key = type === 'success' ? 'successes' : 'failures';
-    const index = parseInt(deathSaveIcon.dataset.index, 10);
-    characterData.deathSaves[key] = (characterData.deathSaves[key] === index + 1) ? index : index + 1;
-    stateChanged = true;
-  }
-  else if (spellTracker) {
-    const level = spellTracker.dataset.level;
-    const slots = characterData.spells.slots[level];
-    slots.used = (slots.used < slots.total) ? slots.used + 1 : 0;
-    stateChanged = true;
-  }
-  else if (customTracker) {
-    const index = parseInt(customTracker.dataset.index, 10);
-    const tracker = characterData.spells.customTrackers[index];
-    tracker.used = (tracker.used < tracker.max) ? tracker.used + 1 : 0;
-    stateChanged = true;
-  }
-  else if (longRestBtn) {
-    if (confirm("Recuperare tutti gli slot incantesimo, gli hp e metà dei dadi vita?")) {
-        characterData.hp.current = characterData.hp.max;
-        characterData.hitDice.diceStates.fill(false);
-        for (const level in characterData.spells.slots) {
-            characterData.spells.slots[level].used = 0;
+      this.save();
+    },
+    applyHeal() {
+      this.characterData.hp.current = Math.min(this.characterData.hp.max, this.characterData.hp.current + this.damageHealAmount);
+      this.save();
+    },
+    changeTempHp(amount) {
+      this.characterData.hp.temp = Math.max(0, this.characterData.hp.temp + amount);
+      this.save();
+    },
+     toggleHitDice(index) {
+        this.characterData.hitDice.diceStates[index] = !this.characterData.hitDice.diceStates[index];
+        this.save();
+    },
+    toggleDeathSave(type, index) {
+        const key = type === 'success' ? 'successes' : 'failures';
+        this.characterData.deathSaves[key] = (this.characterData.deathSaves[key] === index + 1) ? index : index + 1;
+        this.save();
+    },
+     changeHitDiceTotal(amount) {
+        const newTotal = Math.max(0, this.characterData.hitDice.total + amount);
+        this.characterData.hitDice.total = newTotal;
+        // Adegua la lunghezza dell'array di stati
+        while (this.characterData.hitDice.diceStates.length < newTotal) {
+            this.characterData.hitDice.diceStates.push(false);
         }
-        for (const tracker of characterData.spells.customTrackers) {
-            tracker.used = 0;
+        this.characterData.hitDice.diceStates.length = newTotal;
+        this.save();
+    },
+    changeHitDiceType(type) {
+        this.characterData.hitDice.type = type;
+        this.save();
+    },
+    toggleEditMode() {
+        if(this.isEditMode) {
+            this.save(); // Salva quando si esce dalla modalità modifica
         }
-        stateChanged = true;
-    }
-  }
-  else if (preparedToggle) {
-    const index = parseInt(preparedToggle.dataset.prepareIndex, 10);
-    if (characterData.spells.list[index]) {
-        characterData.spells.list[index].prepared = !characterData.spells.list[index].prepared;
-        stateChanged = true;
-    }
-  }
-  else if (addBtn) {
-    const type = addBtn.dataset.type;
-    if (type === 'spells.list') { characterData.spells.list.push({ name: "Nuovo Incantesimo", level: 1, school: "N/A", castingTime: "1 Azione", range: "N/A", duration: "Istantanea", components: "V,S,M", description: "", prepared: true }); }
-    else if (type === 'spells.slots') { const level = prompt("Nuovo livello di slot (1-9):"); if (level && !characterData.spells.slots[level]) { characterData.spells.slots[level] = { total: 1, used: 0 }; } }
-    else if (type === 'spells.customTrackers') { characterData.spells.customTrackers.push({ name: "Nuovo Contatore", max: 1, used: 0 }); }
-    else if (type === 'attacks') { characterData.attacks.push({ name: "Nuovo Attacco", bonus: "+0", damage: "1d4", notes: "" }); }
-    else if (type === 'features') { characterData.features.push({ name: "Nuovo Privilegio", description: "Descrizione..." }); }
-    else if (type === 'equipment') { characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 }); }
-    stateChanged = true;
-  }
-  else if (deleteBtn) {
-    if (confirm("Sei sicuro di voler eliminare questo elemento?")) {
-        const type = deleteBtn.dataset.type;
-        const key = deleteBtn.dataset.level || deleteBtn.dataset.index;
-        if (type === 'spells.slots') {
-            delete characterData.spells.slots[key];
-        } else {
-            const list = type.split('.').reduce((o, i) => o[i], characterData);
-            list.splice(key, 1);
-        }
-        stateChanged = true;
-    }
-  }
-
-  if (stateChanged) {
-    saveData(characterData);
-    ui.renderSheet(characterData);
-  }
-
-  const filterBtn = target.closest(".filter-btn");
-  const spellCardHeader = target.closest(".spell-card-header");
-  if (filterBtn) {
-    ui.setSpellFilter(filterBtn.dataset.filter);
-    ui.renderSpells(characterData.spells);
-  } else if (spellCardHeader && !addBtn && !deleteBtn && !preparedToggle) {
-      spellCardHeader.parentElement.classList.toggle("expanded");
-  }
-}
-
-function gatherDataFromUI() {
-    document.querySelectorAll("[data-path]").forEach((el) => {
-        const path = el.dataset.path.split(".");
-        let current = characterData;
-        for (let i = 0; i < path.length - 1; i++) { current = current[path[i]]; }
-        const value = el.type === 'number' ? parseInt(el.value, 10) || 0 : el.value;
-        current[path[path.length - 1]] = value;
-    });
-    document.querySelectorAll(".skill-prof.edit-item").forEach((el) => {
-        const key = el.dataset.skill;
-        const type = el.dataset.type;
-        if (type === 'save') { characterData.savingThrows[key] = el.checked; }
-        else { characterData.skills[key].proficient = el.checked; }
-    });
-}
-
-function toggleEditMode() {
-  isEditMode = !isEditMode;
-  if (!isEditMode) {
-    gatherDataFromUI();
-    saveData(characterData);
-  }
-  ui.setEditMode(isEditMode);
-  ui.renderSheet(characterData);
-}
-
-function setupSmoothScrolling() {
-  document.querySelectorAll('#navbar-shortcuts a').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      
-      const targetId = this.getAttribute('href');
-      const targetElement = document.querySelector(targetId);
-      
-      if (targetElement) {
-        targetElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
+        this.isEditMode = !this.isEditMode;
+    },
+    getModifier(abilityKey) {
+        if (!this.characterData) return 0;
+        const score = this.characterData.abilities[abilityKey];
+        return Math.floor((score - 10) / 2);
+    },
+    getSavingThrowBonus(abilityKey) {
+        if (!this.characterData) return 0;
+        const modifier = this.getModifier(abilityKey);
+        const isProficient = this.characterData.savingThrows[abilityKey];
+        return modifier + (isProficient ? this.characterData.proficiencyBonus : 0);
+    },
+    getSkillBonus(skillName, abilityKey) {
+        if (!this.characterData) return 0;
+        const modifier = this.getModifier(abilityKey);
+        const isProficient = this.characterData.skills[skillName].proficient;
+        return modifier + (isProficient ? this.characterData.proficiencyBonus : 0);
+    },
+    formatSkillName(skillName) {
+        // Funzione puramente estetica per formattare i nomi (es. "sleightOfHand" -> "Sleight Of Hand")
+        return skillName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    },
+    addAttack() {
+        this.characterData.attacks.push({
+            name: "Nuovo Attacco",
+            bonus: "+0",
+            damage: "1d4",
+            notes: ""
         });
+        this.save();
+    },
+    deleteAttack(index) {
+        if (confirm("Sei sicuro di voler cancellare questo attacco?")) {
+            this.characterData.attacks.splice(index, 1);
+            this.save();
+        }
+    },
+    addFeature() {
+        this.characterData.features.push({ name: "Nuovo Privilegio", description: "Descrizione..." });
+        this.save();
+    },
+    deleteFeature(index) {
+        if (confirm("Sei sicuro di voler cancellare questo privilegio?")) {
+            this.characterData.features.splice(index, 1);
+            this.save();
+        }
+    },
+    addEquipment() {
+        this.characterData.equipment.push({ name: "Nuovo Oggetto", quantity: 1 });
+        this.save();
+    },
+    deleteEquipment(index) {
+        if (confirm("Sei sicuro di voler cancellare questo oggetto?")) {
+            this.characterData.equipment.splice(index, 1);
+            this.save();
+        }
       }
-    });
-  });
-}
+  },
 
-async function init() {
-  setupSmoothScrolling();
-  
-  characterData = await loadData();
-  console.log("--- STATO INIZIALE CARICATO ---", JSON.parse(JSON.stringify(characterData)));
+  // Funzione eseguita quando l'app è pronta
+  async mounted() {
+    this.characterData = await loadData();
+    // Aggiungiamo un listener per il bottone di modifica
+    const editBtn = document.getElementById('edit-mode-btn');
+    if(editBtn) editBtn.addEventListener('click', this.toggleEditMode);
+  }
+};
 
-  ui.setEditMode(isEditMode);
-  ui.renderSheet(characterData);
-
-  document.getElementById("edit-mode-btn").addEventListener("click", toggleEditMode);
-  document.body.addEventListener("click", handleInteraction);
-  
-  document.body.addEventListener("input", (e) => {
-    if (isEditMode && e.target.matches('[data-path^="abilities."]')) {
-      const key = e.target.dataset.path.split(".")[1];
-      characterData.abilities[key] = parseInt(e.target.value, 10) || 0;
-      ui.renderSheet(characterData);
-      saveData(characterData);
-    }
-  });
-}
-
-init();
+// Creiamo e montiamo l'app Vue nel nostro div #app
+Vue.createApp(App).mount('#app');

@@ -2,7 +2,7 @@
 
 // 1. Aumentiamo la versione della cache. Ogni volta che modificherai i file
 // dell'app, dovrai aumentare questo numero (es. v3, v4, ecc.)
-const CACHE_NAME = 'scheda-dnd-cache-v4'; 
+const CACHE_NAME = 'scheda-dnd-cache-v5'; 
 
 // Lista dei file fondamentali per far funzionare l'app offline
 const urlsToCache = [

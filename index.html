@@ -1,83 +1,621 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Runica - Scheda D&D</title>
-    
-    <link rel="icon" type="image/png" href="img/icon-192.png">
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="icon" type="image/png" href="img/icon-192.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <nav id="main-navbar">
-        <div class="navbar-content">
-            <h1 class="navbar-title">Runica</h1>
-            <div id="navbar-shortcuts">
-                <a href="#abilities-container">Abilità</a>
-                <a href="#main-content-grid">Combattimento</a>
-                <a href="#features-box">Talenti</a>
-                <a href="#spells-section-container">Incantesimi</a>
-            </div>
-            <div id="controls-container">
-                <span id="save-feedback"></span>
-                <button id="edit-mode-btn" class="btn">Modifica Scheda</button>
-            </div>
+      <div class="navbar-content">
+        <h1 class="navbar-title">Runica</h1>
+        <div id="navbar-shortcuts">
+          <a href="#abilities-container">Abilità</a>
+          <a href="#main-content-grid">Combattimento</a>
+          <a href="#features-box">Talenti</a>
+          <a href="#spells-section-container">Incantesimi</a>
         </div>
+        <div id="controls-container">
+          <span id="save-feedback"></span>
+          <button id="edit-mode-btn" class="btn">Modifica Scheda</button>
+        </div>
+      </div>
     </nav>
 
-    <div class="container" id="character-sheet">
-        
-        <header id="main-header-grid">
-            <div id="portrait-container"></div>
-            <div id="header-info-container">
-                <div id="name-and-controls">
-                    <h1 id="character-name-display"></h1>
+    <div class="container" id="app">
+      <header id="main-header-grid" v-if="characterData">
+        <div id="portrait-container">
+          <img
+            id="portrait-img"
+            :src="characterData.imageUrl"
+            alt="Ritratto"
+            v-if="characterData"
+          />
+          <div v-if="isEditMode" class="edit-item">
+            <label>URL Immagine</label>
+            <input type="text" v-model="characterData.imageUrl" />
+          </div>
+        </div>
+        <div id="header-info-container">
+          <div id="name-and-controls">
+            <h1 id="character-name-display">{{ characterData.name }}</h1>
+          </div>
+          <div id="details-grid">
+            <div class="detail-box">
+              <label>Classe & Livello</label>
+              <div class="view-item" v-if="!isEditMode">
+                {{ characterData.class }}
+              </div>
+              <input
+                class="edit-item"
+                v-if="isEditMode"
+                type="text"
+                v-model="characterData.class"
+              />
+            </div>
+            <div class="detail-box">
+              <label>Specie</label>
+              <div class="view-item" v-if="!isEditMode">
+                {{ characterData.race }}
+              </div>
+              <input
+                class="edit-item"
+                v-if="isEditMode"
+                type="text"
+                v-model="characterData.race"
+              />
+            </div>
+            <div class="detail-box">
+              <label>Background</label>
+              <div class="view-item" v-if="!isEditMode">
+                {{ characterData.background }}
+              </div>
+              <input
+                class="edit-item"
+                v-if="isEditMode"
+                type="text"
+                v-model="characterData.background"
+              />
+            </div>
+            <div class="detail-box">
+              <label>Allineamento</label>
+              <div class="view-item" v-if="!isEditMode">
+                {{ characterData.alignment }}
+              </div>
+              <input
+                class="edit-item"
+                v-if="isEditMode"
+                type="text"
+                v-model="characterData.alignment"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main id="main-content-grid" v-if="characterData">
+        <div id="column-left">
+          <div id="key-stats-container">
+            <div class="key-stat-box">
+              <span class="stat-label">Livello Personaggio</span>
+              <span class="stat-value" v-if="!isEditMode"
+                >{{ characterData.level }}</span
+              >
+              <input
+                class="stat-value"
+                v-if="isEditMode"
+                type="number"
+                v-model.number="characterData.level"
+              />
+            </div>
+            <div class="key-stat-box">
+              <span class="stat-label">Bonus Competenza</span>
+              <span class="stat-value" v-if="!isEditMode"
+                >+{{ characterData.proficiencyBonus }}</span
+              >
+              <input
+                class="stat-value"
+                v-if="isEditMode"
+                type="number"
+                v-model.number="characterData.proficiencyBonus"
+              />
+            </div>
+          </div>
+          <div id="abilities-container">
+            <div
+              v-for="key in ['str', 'dex', 'con', 'int', 'wis', 'cha']"
+              class="ability-box"
+            >
+              <div class="ability-header">
+                <h3>{{ key.toUpperCase() }}</h3>
+                <div class="ability-score" v-if="!isEditMode">
+                  {{ characterData.abilities[key] }}
+                </div>
+                <input
+                  type="number"
+                  class="ability-score"
+                  v-if="isEditMode"
+                  v-model.number="characterData.abilities[key]"
+                />
+                <div class="ability-modifier">
+                  {{ getModifier(key) >= 0 ? '+' : '' }}{{ getModifier(key) }}
+                </div>
+              </div>
+
+              <ul class="skill-list">
+                <li
+                  style="
+                    font-weight: bold;
+                    border-bottom: 1px solid var(--c-border);
+                    padding-bottom: 0.5rem;
+                    margin-bottom: 0.75rem;
+                  "
+                >
+                  <span
+                    v-if="!isEditMode"
+                    class="prof-dot"
+                    :class="{ proficient: characterData.savingThrows[key] }"
+                  ></span>
+                  <input
+                    v-if="isEditMode"
+                    type="checkbox"
+                    v-model="characterData.savingThrows[key]"
+                    @change="save"
+                    class="skill-prof"
+                  />
+                  <span class="skill-name">Tiro Salvezza</span>
+                  <strong
+                    >{{ getSavingThrowBonus(key) >= 0 ? '+' : '' }}{{
+                    getSavingThrowBonus(key) }}</strong
+                  >
+                </li>
+
+                <li v-for="skillName in SKILL_MAP[key]">
+                  <span
+                    v-if="!isEditMode"
+                    class="prof-dot"
+                    :class="{ proficient: characterData.skills[skillName].proficient }"
+                  ></span>
+                  <input
+                    v-if="isEditMode"
+                    type="checkbox"
+                    v-model="characterData.skills[skillName].proficient"
+                    @change="save"
+                    class="skill-prof"
+                  />
+                  <span class="skill-name"
+                    >{{ formatSkillName(skillName) }}</span
+                  >
+                  <strong
+                    >{{ getSkillBonus(skillName, key) >= 0 ? '+' : '' }}{{
+                    getSkillBonus(skillName, key) }}</strong
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div id="proficiencies-box" class="box">
+            <h2>Altre Competenze e Linguaggi</h2>
+            <div v-if="characterData.proficiencies">
+              <h4>Armature</h4>
+              <p v-if="!isEditMode" style="white-space: pre-wrap">
+                {{ characterData.proficiencies.armor }}
+              </p>
+              <textarea
+                v-if="isEditMode"
+                v-model="characterData.proficiencies.armor"
+              ></textarea>
+
+              <h4>Armi</h4>
+              <p v-if="!isEditMode" style="white-space: pre-wrap">
+                {{ characterData.proficiencies.weapons }}
+              </p>
+              <textarea
+                v-if="isEditMode"
+                v-model="characterData.proficiencies.weapons"
+              ></textarea>
+
+              <h4>Strumenti</h4>
+              <p v-if="!isEditMode" style="white-space: pre-wrap">
+                {{ characterData.proficiencies.tools }}
+              </p>
+              <textarea
+                v-if="isEditMode"
+                v-model="characterData.proficiencies.tools"
+              ></textarea>
+
+              <h4>Linguaggi</h4>
+              <p v-if="!isEditMode" style="white-space: pre-wrap">
+                {{ characterData.proficiencies.languages }}
+              </p>
+              <textarea
+                v-if="isEditMode"
+                v-model="characterData.proficiencies.languages"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div id="column-center">
+          <div id="main-stats-container">
+            <div class="flanking-stat-box">
+              <span class="stat-label">Iniziativa</span>
+              <span class="stat-value"
+                >{{ initiative >= 0 ? '+' : '' }}{{ initiative }}</span
+              >
+            </div>
+
+            <div class="ac-shield-container">
+              <svg class="ac-shield-svg" viewBox="-5 -5 110 120">
+                <path
+                  class="shield-path"
+                  d="M 50,0 L 100,10 L 95,60 C 95,90 50,110 50,110 C 50,110 5,90 5,60 L 0,10 Z"
+                ></path>
+                <text
+                  x="50"
+                  y="20"
+                  text-anchor="middle"
+                  class="shield-text-label"
+                >
+                  CLASSE
+                </text>
+                <text
+                  x="50"
+                  y="32"
+                  text-anchor="middle"
+                  class="shield-text-label"
+                >
+                  ARMATURA
+                </text>
+                <text
+                  x="50"
+                  y="80"
+                  text-anchor="middle"
+                  class="shield-text-value"
+                >
+                  {{ characterData.ac }}
+                </text>
+              </svg>
+              <div v-if="isEditMode" class="edit-item">
+                <input
+                  type="number"
+                  class="stat-value"
+                  v-model.number="characterData.ac"
+                />
+              </div>
+            </div>
+
+            <div class="flanking-stat-box">
+              <span class="stat-label">Velocità</span>
+              <span class="stat-value" v-if="!isEditMode"
+                >{{ characterData.speed }}</span
+              >
+              <input
+                type="text"
+                class="stat-value"
+                v-if="isEditMode"
+                v-model="characterData.speed"
+              />
+            </div>
+          </div>
+          <div id="hp-box" class="box" v-if="characterData">
+            <div class="health-container">
+              <h4>Punti Ferita</h4>
+
+              <div class="hp-sub-stats">
+                <div>
+                  HP Massimi:
+                  <span v-if="!isEditMode">{{ characterData.hp.max }}</span>
+                  <input
+                    v-if="isEditMode"
+                    type="number"
+                    v-model.number="characterData.hp.max"
+                    style="width: 60px; text-align: center"
+                  />
+                </div>
+              </div>
+
+              <div class="hp-display">
+                <svg class="hp-heart-icon" viewBox="-2 -2 28 28">
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  ></path>
+                </svg>
+                <span class="hp-text">{{ characterData.hp.current }}</span>
+              </div>
+
+              <div class="hp-bar-container">
+                <div
+                  class="hp-bar-fill"
+                  :style="{ width: hpPercent + '%', backgroundColor: barColor }"
+                ></div>
+              </div>
+
+              <div class="hp-sub-stats" style="margin-top: 0.5rem">
+                <div class="temp-hp-container">
+                  HP Temporanei: <span>{{ characterData.hp.temp }}</span>
+                  <div class="temp-hp-controls">
+                    <button class="btn-small" @click="changeTempHp(-1)">
+                      -
+                    </button>
+                    <button class="btn-small" @click="changeTempHp(1)">
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="temp-hp-bar-container">
+                <div
+                  class="temp-hp-bar-fill"
+                  :style="{ width: tempHpPercent + '%' }"
+                ></div>
+              </div>
+
+              <div class="sub-resources-grid">
+                <div class="hit-dice-panel">
+                  <h5>Dadi Vita</h5>
+                  <div v-if="!isEditMode">
+                    <div
+                      style="
+                        text-align: center;
+                        color: var(--c-label);
+                        margin-bottom: 1rem;
+                      "
+                    >
+                      Totali: {{ characterData.hitDice.total }}{{
+                      characterData.hitDice.type }}
                     </div>
-                <div id="details-grid"></div>
-            </div>
-        </header>
+                    <div class="tracker-grid">
+                      <span
+                        v-for="(isUsed, index) in characterData.hitDice.diceStates"
+                        @click="toggleHitDice(index)"
+                        class="hit-dice-icon"
+                        :class="{ 'used': isUsed }"
+                        >🩸</span
+                      >
+                    </div>
+                  </div>
+                  <div v-if="isEditMode" class="edit-item-controls">
+                    <div class="control-group">
+                      <label>Num. Dadi</label>
+                      <div>
+                        <button
+                          class="btn btn-small"
+                          @click="changeHitDiceTotal(-1)"
+                        >
+                          -
+                        </button>
+                        <span style="padding: 0 10px; font-weight: bold"
+                          >{{ characterData.hitDice.total }}</span
+                        >
+                        <button
+                          class="btn btn-small"
+                          @click="changeHitDiceTotal(1)"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label>Tipo Dado</label>
+                      <div class="die-type-buttons">
+                        <button
+                          v-for="dieType in ['d6', 'd8', 'd10', 'd12']"
+                          @click="changeHitDiceType(dieType)"
+                          class="btn btn-small"
+                          :class="{ 'active': characterData.hitDice.type === dieType }"
+                        >
+                          {{ dieType }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-        <main id="main-content-grid">
-            <div id="column-left">
-                <div id="key-stats-container"></div>
-                <div id="abilities-container"></div>
-                <div id="proficiencies-box" class="box"></div>
-            </div>
-            <div id="column-center">
-                <div id="main-stats-container"></div>
-                <div id="hp-box" class="box"></div>
-                <div id="attacks-box" class="box"></div>
-            </div>
-            <div id="column-right">
-                <div id="features-box" class="box"></div>
-                <div id="equipment-box" class="box"></div>
-                <div id="personality-box" class="box"></div>
-            </div>
-        </main>
-        
-        <section id="spells-section-container" class="box">
-        </section>
+                <div class="death-saves-panel">
+                  <h5>Tiri Salvezza vs Morte</h5>
+                  <div class="death-save-trackers">
+                    <div class="death-save-row">
+                      <span class="ds-label">Successi</span>
+                      <div class="tracker-grid">
+                        <span
+                          v-for="i in 3"
+                          @click="toggleDeathSave('success', i-1)"
+                          class="skull-icon"
+                          :class="{ 'toggled success': i <= characterData.deathSaves.successes }"
+                          >💀</span
+                        >
+                      </div>
+                    </div>
+                    <div class="death-save-row">
+                      <span class="ds-label">Fallimenti</span>
+                      <div class="tracker-grid">
+                        <span
+                          v-for="i in 3"
+                          @click="toggleDeathSave('failure', i-1)"
+                          class="skull-icon"
+                          :class="{ 'toggled failure': i <= characterData.deathSaves.failures }"
+                          >💀</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
+              <div class="hp-controls">
+                <button
+                  class="hp-control-btn damage"
+                  title="Danno"
+                  @click="applyDamage"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                      transform="rotate(45 12 12)"
+                    ></path>
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+                    ></path>
+                  </svg>
+                </button>
+                <input
+                  type="number"
+                  v-model.number="damageHealAmount"
+                  min="1"
+                />
+                <button
+                  class="hp-control-btn heal"
+                  title="Cura"
+                  @click="applyHeal"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M16.5 3c-1.74 0-3.41.81 4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 .98.22 1.91.62 2.75L12 21.35l9.38-10.1C21.78 10.41 22 9.48 22 8.5 22 5.42 19.58 3 16.5 3zM18 10h-3V7h-2v3h-3v2h3v3h2v-3h3v-2z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="attacks-box" class="box">
+            <h2>Attacchi</h2>
+            <div id="attacks-container">
+              <div
+                v-for="(attack, index) in characterData.attacks"
+                class="attack-card"
+              >
+                <div v-if="!isEditMode" class="view-item">
+                  <h4>{{ attack.name }}</h4>
+                  <div class="attack-stats">
+                    <span><strong>Bonus:</strong> {{ attack.bonus }}</span>
+                    <span><strong>Danno:</strong> {{ attack.damage }}</span>
+                  </div>
+                  <div class="attack-notes">{{ attack.notes }}</div>
+                </div>
+                <div v-if="isEditMode" class="edit-item">
+                  <input
+                    type="text"
+                    v-model="attack.name"
+                    placeholder="Nome Attacco"
+                  />
+                  <div style="display: flex; gap: 1rem; margin: 0.5rem 0">
+                    <input
+                      type="text"
+                      v-model="attack.bonus"
+                      placeholder="Bonus"
+                    />
+                    <input
+                      type="text"
+                      v-model="attack.damage"
+                      placeholder="Danno"
+                    />
+                  </div>
+                  <textarea v-model="attack.notes"></textarea>
+                  <button class="delete-btn" @click="deleteAttack(index)">
+                    X
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button
+              v-if="isEditMode"
+              class="add-btn edit-item"
+              @click="addAttack"
+            >
+              +
+            </button>
+          </div>
+        </div>
+        <div id="column-right">
+          <div id="features-box" class="box">
+            <h2>Talenti e Privilegi</h2>
+                <div v-if="characterData.features">
+                    <div v-for="(feature, index) in characterData.features" class="feature-item">
+                        <div v-if="!isEditMode">
+                            <h4>{{ feature.name }}</h4>
+                            <p>{{ feature.description }}</p>
+                        </div>
+                        <div v-if="isEditMode" class="edit-item">
+                            <input type="text" v-model="feature.name" placeholder="Nome Privilegio">
+                            <textarea v-model="feature.description"></textarea>
+                            <button class="delete-btn" @click="deleteFeature(index)">X</button>
+                        </div>
+                    </div>
+                    <button v-if="isEditMode" class="add-btn edit-item" @click="addFeature">+</button>
+                </div>
+          </div>
+          <div id="equipment-box" class="box">
+            <h2>Equipaggiamento e Monete</h2>
+<ul class="item-list" v-if="characterData.equipment">
+    <li v-for="(item, index) in characterData.equipment">
+        <div class="view-item" v-if="!isEditMode">{{ item.name }} ({{ item.quantity }})</div>
+        <div v-if="isEditMode" class="edit-item" style="display:flex;gap:5px;width:100%;">
+            <input type="text" v-model="item.name" placeholder="Oggetto">
+            <input type="number" v-model.number="item.quantity" style="flex-basis:70px;">
+            <button class="delete-btn" @click="deleteEquipment(index)">X</button>
+        </div>
+    </li>
+</ul>
+<button v-if="isEditMode" class="add-btn edit-item" @click="addEquipment">+</button>
+
+<div id="coin-container" v-if="characterData.coins">
+    <div v-for="(amount, coinType) in characterData.coins" class="coin-box">
+        <span class="stat-label">{{ coinType.toUpperCase() }}</span>
+        <div class="stat-value view-item" v-if="!isEditMode">{{ amount }}</div>
+        <input type="number" class="stat-value edit-item" v-if="isEditMode" v-model.number="characterData.coins[coinType]">
     </div>
+</div>
+          </div>
+          <div id="personality-box" class="box">
+            <h2>Personalità</h2>
+<div v-if="characterData.personality">
+    <h4>Aspetto</h4>
+    <p v-if="!isEditMode" style="white-space: pre-wrap;">{{ characterData.personality.appearance }}</p>
+    <textarea v-if="isEditMode" v-model="characterData.personality.appearance"></textarea>
     
+    <h4>Backstory</h4>
+    <p v-if="!isEditMode" style="white-space: pre-wrap;">{{ characterData.personality.backstory }}</p>
+    <textarea v-if="isEditMode" v-model="characterData.personality.backstory"></textarea>
+</div>
+          </div>
+        </div>
+      </main>
+
+      <section
+        id="spells-section-container"
+        class="box"
+        v-if="characterData"
+      ></section>
+    </div>
+
     <script src="js/main.js" type="module"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').then(registration => {
-            console.log('PWA: Service Worker registrato con successo.');
-          }, err => {
-            console.error('PWA: Registrazione Service Worker fallita:', err);
-          });
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").then(
+            (registration) => {
+              console.log("PWA: Service Worker registrato con successo.");
+            },
+            (err) => {
+              console.error("PWA: Registrazione Service Worker fallita:", err);
+            }
+          );
         });
       }
     </script>
-</body>
+  </body>
 </html>
